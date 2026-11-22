@@ -8,7 +8,17 @@ Inkling Ada is an open-source experiment in serving Thinking Machines’ [Inklin
 
 ## Get started
 
-Use a supported NVIDIA driver and the CUDA 12.9 Linux archive from [NInfer-all 2026-11-22.3](https://github.com/iamwavecut/ninfer-all/releases/tag/2026-11-22.3). Verify the numbered archive parts against its SHA-256 manifest. The archive targets Debian 13. On older Linux hosts, use its Dockerfile and NVIDIA Container Toolkit as described in the [NInfer Linux release guide](https://github.com/iamwavecut/ninfer-all/blob/master/docs/release-archive-linux.md).
+### One-shot agent deployment
+
+Use the [Inkling Ada deploy skill](.agents/skills/inkling-ada-deploy/SKILL.md) from a checkout. It prepares the pinned SM89 build and model, starts the loopback server, and verifies a completed reply.
+
+> Use `$inkling-ada-deploy` to start Inkling 2 Mini on my Linux RTX 4090 and verify a completed reply.
+
+To use it elsewhere, copy the entire [`.agents/skills/inkling-ada-deploy` folder](.agents/skills/inkling-ada-deploy) into your agent's skills directory. Include `references/` and `scripts/` so the build instructions and launcher travel with the skill. Codex discovers project skills from a checkout and uses `~/.agents/skills/` for a personal copy.
+
+### Manual setup
+
+Use a supported NVIDIA driver and an Inkling-capable CUDA Linux archive from [NInfer-all releases](https://github.com/iamwavecut/ninfer-all/releases). Verify the numbered archive parts against its SHA-256 manifest and check the distribution requirements for that release. On older Linux hosts, use its Dockerfile and NVIDIA Container Toolkit as described in the [NInfer Linux release guide](https://github.com/iamwavecut/ninfer-all/blob/master/docs/release-archive-linux.md).
 
 Download the [UD-IQ4_XS NInfer artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3), then start the stock upstream server in one terminal.
 

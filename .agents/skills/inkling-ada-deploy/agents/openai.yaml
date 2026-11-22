@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inkling Ada Deploy"
+  short_description: "Start and verify a local Inkling Ada server"
+  default_prompt: "Use $inkling-ada-deploy to start Inkling 2 Mini on the target Linux GPU host and verify a completed reply."
