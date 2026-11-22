@@ -21,7 +21,7 @@ mkdir -p "$HOME/.agents/skills"
 cp -R .agents/skills/inkling-ada-deploy "$HOME/.agents/skills/"
 ```
 
-For another agent, copy the [entire skill folder](.agents/skills/inkling-ada-deploy) into that agent's skills directory. Keep `references/` and `scripts/` alongside `SKILL.md` so the build instructions and launcher travel with it.
+If you already cloned the repo, run the last two commands from its root. For another agent, copy the [entire skill folder](.agents/skills/inkling-ada-deploy) into that agent's skills directory. Include `SKILL.md`, `agents/`, `references/`, and `scripts/`.
 
 Then give your agent one request.
 
