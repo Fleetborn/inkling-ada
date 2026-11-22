@@ -1,0 +1,226 @@
+diff --git a/src/models/inkling2/kernels.cu b/src/models/inkling2/kernels.cu
+index 56e1b03..87b3665 100644
+--- a/src/models/inkling2/kernels.cu
++++ b/src/models/inkling2/kernels.cu
+@@ -4,10 +4,12 @@
+ #include "models/inkling2/config.h"
+ #include "models/inkling2/kv_codec.cuh"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ 
+ #include <cublas_v2.h>
+ #include <cuda_bf16.h>
+ #include <cuda_fp16.h>
++#include <mma.h>
+ 
+ #include <algorithm>
+ #include <cfloat>
+@@ -775,9 +777,11 @@ __device__ __forceinline__ void key_range(const AttentionArgs& a, int t0, int t1
+     }
+ }
+ 
+-template <int kRows>
++template <int kRows, bool kTensorQk = false>
+ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(AttentionArgs a) {
+     constexpr int kWarps = kRows == 1 ? 4 : 8;
++    constexpr int kScoreRows = kRows * kMaxGroup;
++    static_assert(!kTensorQk || (kScoreRows == 32 && kTile == 16 && kD % 16 == 0));
+     const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
+     const int group   = a.query_heads / a.kv_heads;
+     const int kv_head = blockIdx.y;
+@@ -797,10 +801,13 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+     const int begin = lo + split * chunk;
+     const int end   = min(hi + 1, begin + chunk);
+ 
+-    __shared__ __align__(16) __half k_s[kTile][kD];
++    __shared__ __align__(32) __half k_s[kTile][kD];
+     __shared__ __align__(16) __half v_s[kTile][kD];
+     __shared__ float r_s[kWarps][kMaxGroup][kRel];
++    __shared__ __align__(32) __half q_s[kTensorQk ? kScoreRows : 1][kD];
++    __shared__ __align__(32) float dot_s[kTensorQk ? kScoreRows : 1][kTile];
+ 
++    bool q_in_half_range = true;
+     float q_r[kMaxGroup][4], acc[kMaxGroup][4], m[kMaxGroup], l[kMaxGroup];
+ #pragma unroll
+     for (int h = 0; h < kMaxGroup; ++h) {
+@@ -820,7 +827,17 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+             q_r[h][3] = q.w * a.scale;
+             if (lane < kRel && a.r != nullptr) { r_s[warp][h][lane] = a.r[at * kRel + lane]; }
+         }
++        if constexpr (kTensorQk) {
++#pragma unroll
++            for (int j = 0; j < 4; ++j) {
++                const float x = q_r[h][j];
++                q_in_half_range &= fabsf(x) <= 65504.0f;
++                q_s[warp * kMaxGroup + h][4 * lane + j] = __float2half_rn(x);
++            }
++        }
+     }
++    bool tensor_qk = false;
++    if constexpr (kTensorQk) { tensor_qk = !__syncthreads_or(!q_in_half_range); }
+     const int sequence = row_sequence(a.rows, t0);
+     const std::int64_t base = std::int64_t(sequence) * a.seq_stride +
+                               std::int64_t(kv_head) * a.head_stride;
+@@ -859,6 +876,25 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+             *reinterpret_cast<uint4*>(matrix == 0 ? &k_s[r][c * 8] : &v_s[r][c * 8]) = word;
+         }
+         __syncthreads();
++        if constexpr (kTensorQk) {
++            if (tensor_qk) {
++                if (warp < kScoreRows / 16) {
++                    namespace wmma = nvcuda::wmma;
++                    wmma::fragment<wmma::matrix_a, 16, 16, 16, __half, wmma::row_major> q;
++                    wmma::fragment<wmma::matrix_b, 16, 16, 16, __half, wmma::col_major> k;
++                    wmma::fragment<wmma::accumulator, 16, 16, 16, float> dot;
++                    wmma::fill_fragment(dot, 0.0f);
++                    // A key's dimensions are contiguous, making K transposed column-major.
++                    for (int d = 0; d < kD; d += 16) {
++                        wmma::load_matrix_sync(q, &q_s[warp * 16][d], kD);
++                        wmma::load_matrix_sync(k, &k_s[0][d], kD);
++                        wmma::mma_sync(dot, q, k, dot);
++                    }
++                    wmma::store_matrix_sync(&dot_s[warp * 16][0], dot, kTile, wmma::mem_row_major);
++                }
++                __syncthreads();
++            }
++        }
+         if (!row_ok) { continue; }
+         int distance = 0;
+         const bool visible =
+@@ -867,15 +903,21 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+ #pragma unroll
+         for (int h = 0; h < kMaxGroup; ++h) {
+             if (h >= heads) { continue; }
+-            float part[kTile];
+-#pragma unroll
+-            for (int kk = 0; kk < kTile; ++kk) {
+-                const uint2 w = *reinterpret_cast<const uint2*>(&k_s[kk][4 * lane]);
+-                const float2 f0 = __half22float2(*reinterpret_cast<const __half2*>(&w.x));
+-                const float2 f1 = __half22float2(*reinterpret_cast<const __half2*>(&w.y));
+-                part[kk] = q_r[h][0] * f0.x + q_r[h][1] * f0.y + q_r[h][2] * f1.x + q_r[h][3] * f1.y;
++            float dot = 0.0f;
++            if constexpr (kTensorQk) {
++                if (tensor_qk) { dot = dot_s[warp * kMaxGroup + h][lane_key]; }
++            }
++            if (!tensor_qk) {
++                float part[kTile];
++#pragma unroll
++                for (int kk = 0; kk < kTile; ++kk) {
++                    const uint2 w = *reinterpret_cast<const uint2*>(&k_s[kk][4 * lane]);
++                    const float2 f0 = __half22float2(*reinterpret_cast<const __half2*>(&w.x));
++                    const float2 f1 = __half22float2(*reinterpret_cast<const __half2*>(&w.y));
++                    part[kk] = q_r[h][0] * f0.x + q_r[h][1] * f0.y + q_r[h][2] * f1.x + q_r[h][3] * f1.y;
++                }
++                dot = key_reduce16(part, lane);
+             }
+-            const float dot = key_reduce16(part, lane);
+             float bias = 0.0f;
+             if (biased) {
+                 const float* row = a.table + std::int64_t(distance) * kRel + 8 * half;
+@@ -1832,7 +1874,14 @@ void attention(const AttentionArgs& args, cudaStream_t stream) {
+     }
+     if (args.rows.chunk) {
+         if (args.splits != 1) { throw std::invalid_argument("inkling2 attention: chunk splits"); }
+-        attention_kernel<8><<<dim3(blocks_for(t, 8), args.kv_heads, 1), 256, 0, stream>>>(args);
++        const dim3 grid(blocks_for(t, 8), args.kv_heads, 1);
++        if (args.window == 0 && args.ring == 0 && args.rows.starts == nullptr &&
++            args.rows.sequences == nullptr && args.k_plane.coding == KvCoding::F16 &&
++            args.v_plane.coding == KvCoding::F16 && ops::detail::current_device_compute_capability(0) == 89) {
++            attention_kernel<8, true><<<grid, 256, 0, stream>>>(args);
++        } else {
++            attention_kernel<8><<<grid, 256, 0, stream>>>(args);
++        }
+         check_launch("attention");
+         return;
+     }
+diff --git a/tests/models/inkling2/test_kernels.cpp b/tests/models/inkling2/test_kernels.cpp
+index 1e78171..fb0fa35 100644
+--- a/tests/models/inkling2/test_kernels.cpp
++++ b/tests/models/inkling2/test_kernels.cpp
+@@ -39,6 +39,7 @@
+ #include "models/inkling2/cpu_experts.h"
+ #include "models/inkling2/kernels.h"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ #include "ops/linear/gguf/ggml_bridge.h"
+ #include "ops/linear/gguf/gguf_linear.h"
+ 
+@@ -691,6 +692,8 @@ struct AttentionCase {
+     RowsCase rows;
+     int ring = 0, window = 0, splits = 1;
+     float sink_offset = 0.0f;
++    int extent = kExtent;
++    bool overflow_query = false;
+ };
+ 
+ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+@@ -707,7 +710,8 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+         for (auto& v : kc) { v = __float2half(1.5f * n(rng)); }
+         for (auto& v : vc) { v = __float2half(n(rng)); }
+     }
+-    const auto q     = normal(std::size_t(t) * kHeads * kD, 0.6f, rng);
++    auto q           = normal(std::size_t(t) * kHeads * kD, 0.6f, rng);
++    if (c.overflow_query) { q.front() = 2e6f; }
+     const auto r     = normal(std::size_t(t) * kHeads * kRel, 1.0f, rng);
+     const auto table = normal(std::size_t(kExtent) * kRel, 1.0f, rng);
+     const std::int64_t gate_stride = kHeads * kD + 32, sink_stride = kHeads + 3;
+@@ -724,11 +728,11 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+     k::AttentionArgs a;
+     a.rows        = rows.rows;
+     a.q           = as<float>(dq);
+-    a.r           = as<float>(dr);
++    a.r           = c.extent > 0 ? as<float>(dr) : nullptr;
+     a.sinks       = as<float>(ds);
+     a.sink_stride = sink_stride;
+     a.table       = as<float>(dt);
+-    a.extent      = kExtent;
++    a.extent      = c.extent;
+     a.k_cache     = as<__half>(dk);
+     a.v_cache     = as<__half>(dv);
+     a.seq_stride  = seq_stride;
+@@ -757,6 +761,25 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+     check(cudaMemcpy(got_q.data(), a.out_q.qs, got_q.size(), cudaMemcpyDeviceToHost), "q8 qs");
+     check(cudaMemcpy(got_d.data(), a.out_q.ds, got_d.size() * 4, cudaMemcpyDeviceToHost), "q8 ds");
+ 
++    if (rc.chunk && c.window == 0 && c.ring == 0 && rc.starts.empty() && rc.sequences.empty() &&
++        !c.overflow_query && ops::detail::current_device_compute_capability(0) == 89) {
++        // All rows stay shared, but the branch descriptor selects the original scalar route.
++        auto starts   = upload(std::vector<std::int32_t>(t, 0));
++        a.rows.starts = as<std::int32_t>(starts);
++        a.rows.shared = t;
++        a.out_q       = {};
++        a.out         = as<bf16>(out);
++        k::attention(a, nullptr);
++        sync("attention scalar bf16");
++        const auto scalar = download<bf16>(out, got.size());
++        Error drift;
++        for (std::size_t i = 0; i < got.size(); ++i) {
++            drift.add(__bfloat162float(got[i]), __bfloat162float(scalar[i]));
++        }
++        report(drift.rel() < 1.5e-3,
++               "attention " + c.name + ": tensor vs scalar bf16 " + num(drift.rel()));
++    }
++
+     const int group = kHeads / kKv;
+     Error eb, eq;
+     int biased = 0, unbiased = 0;
+@@ -788,7 +811,7 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+                 const std::int64_t base = s * seq_stride + kv * head_stride + std::int64_t(slot) * kD;
+                 double d = 0;
+                 for (int i = 0; i < kD; ++i) { d += double(qh[i]) * scale * __half2float(kc[base + i]); }
+-                if (distance < kExtent) {
++                if (distance < c.extent) {
+                     for (int i = 0; i < kRel; ++i) { d += double(rh[i]) * table[std::size_t(distance) * kRel + i]; }
+                     ++biased;
+                 } else {
+@@ -1528,6 +1551,10 @@ int main() {
+         attention_case({"window ring, chunk after 1100", {iota(1100, 37), {}, true, 1100}, ring, kWindow, 1}, rng);
+         attention_case({"full cache, chunk after 600", {iota(600, 21), {}, true, 600}, 0, 0, 1}, rng);
+         attention_case({"full cache, chunk at 0", {iota(0, 64), {}, true, 0}, 0, 0, 1}, rng);
++        attention_case({"full cache, 17 rows after 1103", {iota(1103, 17), {}, true, 1103}}, rng);
++        attention_case({"full cache, no bias", {iota(31, 9), {}, true, 31}, 0, 0, 1, 0.0f, 0}, rng);
++        attention_case({"full cache, FP16 range fallback", {iota(31, 9), {}, true, 31},
++                        0, 0, 1, 0.0f, kExtent, true}, rng);
+         attention_case({"full cache, branches", branches, 0, 0, 1}, rng);
+         attention_case({"window ring, branches", branches, ring, kWindow, 1}, rng);
+ 

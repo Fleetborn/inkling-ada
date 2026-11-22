@@ -49,7 +49,7 @@ Request text and UD-IQ4_XS weight blocks matched across engines. Their template 
 
 ## Design references
 
-[Ada prefill experiment](docs/sm89-prefill-attention.md) profiles Inkling on bm04 and compares a wider full-attention tile on completed answers. The results favor the existing 8-row route and identify the tensor-core score product as the next candidate.
+[Ada prefill profiling](docs/sm89-prefill-attention.md) found that a wider scalar tile slowed full attention. The [tensor-core QK experiment](docs/sm89-tensor-qk.md) kept the 8-row geometry and cut median completion time from 3.010 to 2.796 seconds on the 8,459-token fixture while keeping relative bias and softmax in FP32.
 
 Inkling evaluates 24 weight layers in 48 visits. The 12 middle layers run three times and share weights, with separate KV and short-convolution state per visit. Keeping the quantized experts on the GPU removes expert transfers from the short-context benchmark. Quantized KV and expert paging are candidates for longer contexts once measurements show which resource is limiting. [Inkling architecture in vLLM](https://vllm-project.github.io/2026/11/20/inkling2-mini.html)
 
