@@ -10,7 +10,7 @@ Basalt stages each K/V tile once for a wider group of query rows. The first Ada 
 
 ## Result
 
-Keep the 8-row route as the default. Across 40 matching full-attention calls, the wider tile took 471.2 ms versus 449.2 ms for the baseline, a 4.9% regression. It used 512 threads and 90 registers per thread, versus 256 threads and 96 registers for the baseline. Neither kernel spilled registers. The 8,459-token answer took 0.54% to 1.33% longer in every paired run. [Per-request results and matched traces](../results/bm04-sm89-full-prefill.json)
+Keep the 8-row route as the default. Across 40 matching full-attention calls, the wider tile took 471.2 ms versus 449.2 ms for the baseline, a 4.9% regression. It used 512 threads and 90 registers per thread, versus 256 threads and 96 registers for the baseline. Neither kernel spilled registers. The 8,459-token answer took 0.54% to 1.33% longer in every paired run. [Per-request results and trace summaries](../results/bm04-sm89-full-prefill.json)
 
 | Fixture | Input tokens | Baseline median | 16-row median |
 | --- | ---: | ---: | ---: |
@@ -19,13 +19,13 @@ Keep the 8-row route as the default. Across 40 matching full-attention calls, th
 | Inventory retrieval | 2,159 | 1.390 s | 1.393 s |
 | Inventory retrieval | 8,459 | 3.005 s | 3.034 s |
 
-All 32 requests stopped normally and passed their fixture checks. All 16 pairs matched answer text and token counts. The CUDA kernel test passed the independent oracle and byte comparisons against the 8-row route for both BF16 and packed Q8 output. The comparison used four repetitions per fixture in baseline–candidate–candidate–baseline order, single-stream FP16 KV, the same quant and toolchain, and no speculation. It measures these four synthetic fixtures on one RTX 4090.
+All 32 requests stopped normally and passed their fixture checks. All 16 pairs matched answer text and token counts. The CUDA kernel test passed the independent oracle and eight byte comparisons against the 8-row route for both BF16 and packed Q8 output. The Nsight trace identified 40 candidate calls with 512-thread blocks. The comparison used four repetitions per fixture in baseline–candidate–candidate–baseline order, single-stream FP16 KV, the same quant and toolchain, and no speculation. The recorded hashes identify the patch and benchmark client used for that measurement.
 
 The next candidate is Basalt’s tensor-core query–key product adapted to Ada’s `mma.sync`. The trace locates enough time in prompt attention to justify testing that arithmetic directly. Start with FP16-KV full attention, test FP16 query rounding against the existing oracle, and keep learned relative bias and softmax accumulation in FP32. [Basalt kernel source](https://github.com/jesdga95/basalt/blob/0dc981c8c9593e0d7cd0b9059aa74cfa4545814d/src/models/inkling2/kernels/attn_prompt.cu)
 
 ## Reproduce the comparison
 
-Build the pinned NInfer source twice with the same compiler, once with the [SM89 patch](../patches/ninfer-sm89-full-prefill.patch) applied. Use the NInfer release guide to install the source build dependencies and fetch its pinned media source archives. [NInfer build documentation](https://github.com/iamwavecut/ninfer-all/blob/18029c8e0ce2555bb499e04be24d7a4e9c12a5bc/CONTRIBUTING.md)
+Build the pinned NInfer source twice with the same compiler. Use the clean pinned revision for the baseline and apply the [16-row patch](../patches/ninfer-sm89-full-prefill.patch) directly to the same clean revision for its candidate. Each experiment starts from clean upstream. Use the NInfer release guide to install the source build dependencies and fetch its pinned media source archives. [NInfer build documentation](https://github.com/iamwavecut/ninfer-all/blob/18029c8e0ce2555bb499e04be24d7a4e9c12a5bc/CONTRIBUTING.md)
 
 ```bash
 cmake -S /path/to/ninfer -B /path/to/build -G Ninja \
@@ -35,7 +35,9 @@ cmake --build /path/to/build --target ninfer-serve ninfer_bench ninfer_tests
 ctest --test-dir /path/to/build -R '^ninfer_inkling2_kernels_test$' --output-on-failure
 ```
 
-Use `serve.sh` with each build and the same UD-IQ4_XS artifact. Run `python3 benchmark_completed.py 8080 RUN` with the same run number for each pair. The suite uses arithmetic, prose, and two inventory retrieval prompts at roughly 2K and 8K input tokens. It records actual output length, validation results, answer hashes, first visible answer time, and total client latency.
+Run the GPU test on SM89 to exercise the alternate route. The paired BF16 and Q8 comparisons run only on an eligible SM89 device.
+
+Use `serve.sh` with each build and the same UD-IQ4_XS artifact. Run `python3 benchmark_completed.py 8080 RUN` with the same run number for each pair. The suite uses arithmetic, prose, and two inventory retrieval prompts at roughly 2K and 8K input tokens. It records actual output length, validation results, answer hashes, first visible answer time, and total client latency. Every fixture must stop normally and meet its check for the command to exit successfully.
 
 To attribute time to kernels, capture a warm prefill repetition with Nsight Systems. Run in the NInfer source directory with the appropriate artifact and executable paths.
 

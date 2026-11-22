@@ -33,7 +33,7 @@ def cases(run):
         )
 
 
-def meets_check(answer, expected):
+def meets_check(answer, expected, finish_reason="stop"):
     """Check specific fixture requirements, with the prose check limited to required terms.
 
     >>> meets_check('323', '323')
@@ -44,7 +44,11 @@ def meets_check(answer, expected):
     False
     >>> meets_check('{"stock": 4.0}', {"stock": 4})
     False
+    >>> meets_check('The lead time matters for the reorder threshold.', None, 'length')
+    False
     """
+    if finish_reason != "stop":
+        return False
     if isinstance(expected, dict):
         answer = answer.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         try:
@@ -63,20 +67,25 @@ def main():
     parser.add_argument("run", type=int, help="use the same run number for both engines")
     args = parser.parse_args()
     model = "inkling-2-mini"
-    _, ready = generate("127.0.0.1", args.port, model, "Reply with exactly READY.", 512)
-    if ready.strip() != "READY":
+    smoke, ready = generate("127.0.0.1", args.port, model, "Reply with exactly READY.", 512)
+    if not meets_check(ready.strip(), "READY", smoke["finish_reason"]):
         raise RuntimeError(f"Model smoke check expected READY, got {ready!r}")
+    failed = False
     for name, prompt, expected in cases(args.run):
         metrics, text = generate("127.0.0.1", args.port, model, prompt, 1024)
         answer = text.strip()
+        passed = meets_check(answer, expected, metrics["finish_reason"])
+        failed |= not passed
         print(json.dumps({
             "case": name, "run": args.run,
             "prompt_sha256": sha256(prompt.encode()).hexdigest(),
             "answer_sha256": sha256(answer.encode()).hexdigest(),
             "answer": answer,
-            "check_passed": meets_check(answer, expected),
+            "check_passed": passed,
             **metrics,
         }), flush=True)
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
