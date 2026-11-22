@@ -67,14 +67,23 @@ index 56e1b03..8904bdd 100644
          return;
      }
 diff --git a/tests/models/inkling2/test_kernels.cpp b/tests/models/inkling2/test_kernels.cpp
-index 1e78171..1f7fb80 100644
+index 1e78171..c4f9c09 100644
 --- a/tests/models/inkling2/test_kernels.cpp
 +++ b/tests/models/inkling2/test_kernels.cpp
-@@ -757,6 +757,24 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+@@ -39,6 +39,7 @@
+ #include "models/inkling2/cpu_experts.h"
+ #include "models/inkling2/kernels.h"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ #include "ops/linear/gguf/ggml_bridge.h"
+ #include "ops/linear/gguf/gguf_linear.h"
+ 
+@@ -757,6 +758,25 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
      check(cudaMemcpy(got_q.data(), a.out_q.qs, got_q.size(), cudaMemcpyDeviceToHost), "q8 qs");
      check(cudaMemcpy(got_d.data(), a.out_q.ds, got_d.size() * 4, cudaMemcpyDeviceToHost), "q8 ds");
  
-+    if (rc.chunk && c.window == 0 && c.ring == 0 && rc.starts.empty() && rc.sequences.empty() && t > 8) {
++    if (rc.chunk && c.window == 0 && c.ring == 0 && rc.starts.empty() && rc.sequences.empty() && t > 8 &&
++        ops::detail::current_device_compute_capability(0) == 89) {
 +        // All rows stay shared, but the branch descriptor selects the original eight-row route.
 +        auto starts = upload(std::vector<std::int32_t>(t, 0));
 +        a.rows.starts = as<std::int32_t>(starts);
@@ -95,7 +104,7 @@ index 1e78171..1f7fb80 100644
      const int group = kHeads / kKv;
      Error eb, eq;
      int biased = 0, unbiased = 0;
-@@ -1530,6 +1548,11 @@ int main() {
+@@ -1530,6 +1550,11 @@ int main() {
          attention_case({"full cache, chunk at 0", {iota(0, 64), {}, true, 0}, 0, 0, 1}, rng);
          attention_case({"full cache, branches", branches, 0, 0, 1}, rng);
          attention_case({"window ring, branches", branches, ring, kWindow, 1}, rng);

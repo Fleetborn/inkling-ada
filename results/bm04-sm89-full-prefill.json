@@ -57,6 +57,24 @@
     }
   },
   "gpu_parity_test_exit": 0,
+  "patch_sha256": "cb4cef2157247209123ec66ca03c82681b82a5219bafd68b0cf5b3dbf2dfc2c8",
+  "benchmark_client_sha256": "40c978df656d4e65d6a6762c3db3f0ca8487d244d167dac3ab114daaa75ec359",
+  "gpu_attention_parity_checks": [
+    "OK   attention full cache, chunk after 600: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, chunk at 0: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 9 rows after 1103: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 15 rows after 1103: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 16 rows after 1103: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 17 rows after 1103: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 37 rows after 1103: eight-row parity in bf16 and q8_1",
+    "OK   attention full cache, 512 rows at 0: eight-row parity in bf16 and q8_1"
+  ],
+  "review_validation": {
+    "gpu": "RTX 4090 SM89",
+    "patch_sha256": "dc0e2c2cc84de703fc2f230963e13d1c7f49bda83cf90baa94cfd089e9e3724e",
+    "kernel_test_exit": 0,
+    "attention_comparisons_passed": 8
+  },
   "completed_answer_medians": {
     "arithmetic": {
       "baseline": {
