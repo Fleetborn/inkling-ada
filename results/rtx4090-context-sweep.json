@@ -1,0 +1,269 @@
+{
+  "host": "RTX 4090, driver 595.99.02",
+  "engines": {
+    "ada": "Inkling Ada 50d9433 plus NInfer 18029c8 CUDA12.9",
+    "strata": "Strata v0.2.19 with Inkling engine 0.1.65 CUDA12.9"
+  },
+  "config": {
+    "ada": "UD-IQ4_XS, FP16 KV, drafting off, 65536 context",
+    "ada-long": "UD-IQ4_XS, MXFP8 KV, drafting off, 327680 context",
+    "strata": "SQ-20, FP8 KV, drafting off, chunk 64, 327680 requested context",
+    "strata-long": "SQ-20, FP8 KV, drafting off, chunk 64, 327680 requested context"
+  },
+  "requests": {
+    "ada": {
+      "420": {
+        "run": 1,
+        "size": 420,
+        "prompt_sha256": "cc406658dbb8438f64d0386694bfdc1f27e219cee7bf5088a3fe42250d3d1f45",
+        "answer": "{\"stock\":44,\"lead_days\":11}",
+        "expected": {
+          "stock": 44,
+          "lead_days": 11
+        },
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 124,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 1.8124893179920036,
+        "ttfa_s": 2.6476799639931414,
+        "elapsed_s": 2.7750673689879477,
+        "decode_tok_s_est": 129.94800647204335,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 978.410526,
+          "predicted_n": 124,
+          "predicted_per_second": 125.71410132192302,
+          "predicted_per_token_ms": 7.954557121951219,
+          "prompt_ms": 1793.833634,
+          "prompt_n": 8459,
+          "prompt_per_second": 4715.598949461999,
+          "prompt_per_token_ms": 0.21206213902352525
+        }
+      },
+      "780": {
+        "run": 1,
+        "size": 780,
+        "prompt_sha256": "0446f73687a4f9c5b5ac74eee9c26495fd264869f774d9daaed12229c4b0021e",
+        "answer": "{\"stock\":67,\"lead_days\":7}",
+        "expected": {
+          "stock": 67,
+          "lead_days": 7
+        },
+        "check_passed": true,
+        "prompt_tokens": 15659,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 3.7279411109921057,
+        "ttfa_s": 4.573542865982745,
+        "elapsed_s": 4.706297174998326,
+        "decode_tok_s_est": 124.80610889959969,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 995.015596,
+          "predicted_n": 121,
+          "predicted_per_second": 120.60112472850125,
+          "predicted_per_token_ms": 8.291796633333332,
+          "prompt_ms": 3707.5059330000004,
+          "prompt_n": 15659,
+          "prompt_per_second": 4223.594050280916,
+          "prompt_per_token_ms": 0.23676517868318542
+        }
+      },
+      "1580": {
+        "run": 1,
+        "size": 1580,
+        "prompt_sha256": "bccc4b7266ce11cd198cb122943cbc7b61ca9b4719761c5053ab246af29bb600",
+        "answer": "{\"stock\":42,\"lead_days\":9}",
+        "expected": {
+          "stock": 42,
+          "lead_days": 9
+        },
+        "check_passed": true,
+        "prompt_tokens": 31659,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 9.159055472002365,
+        "ttfa_s": 10.074160936987028,
+        "elapsed_s": 10.217979111999739,
+        "decode_tok_s_est": 115.3009638690717,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 1076.834888,
+          "predicted_n": 121,
+          "predicted_per_second": 111.43769702974184,
+          "predicted_per_token_ms": 8.973624066666668,
+          "prompt_ms": 9135.516479,
+          "prompt_n": 31659,
+          "prompt_per_second": 3465.48551171411,
+          "prompt_per_token_ms": 0.2885598559335418
+        }
+      },
+      "3200": {
+        "run": 1,
+        "size": 3200,
+        "prompt_sha256": "73fe9c977fa7241c2a82dd7497422ba650fef09cf978a494fd092a6e51726fc6",
+        "answer": "{\"stock\":0,\"lead_days\":5}",
+        "expected": {
+          "stock": 0,
+          "lead_days": 5
+        },
+        "check_passed": true,
+        "prompt_tokens": 64059,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 24.801042799983406,
+        "ttfa_s": 25.85775589599507,
+        "elapsed_s": 26.023787304002326,
+        "decode_tok_s_est": 99.85815307412992,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 1243.314265,
+          "predicted_n": 121,
+          "predicted_per_second": 96.51622552565179,
+          "predicted_per_token_ms": 10.360952208333334,
+          "prompt_ms": 24769.979284,
+          "prompt_n": 64059,
+          "prompt_per_second": 2586.1547668462717,
+          "prompt_per_token_ms": 0.38667446079395557
+        }
+      }
+    },
+    "ada-long": {},
+    "strata": {
+      "780": {
+        "run": 1,
+        "size": 780,
+        "prompt_sha256": "0446f73687a4f9c5b5ac74eee9c26495fd264869f774d9daaed12229c4b0021e",
+        "answer": "{\"stock\":67,\"lead_days\":7}",
+        "expected": {
+          "stock": 67,
+          "lead_days": 7
+        },
+        "check_passed": true,
+        "prompt_tokens": 15659,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 15.703761970973574,
+        "ttfa_s": 15.703761970973574,
+        "elapsed_s": 15.910918148991186,
+        "decode_tok_s_est": 651.9929285289577,
+        "server_timings": {
+          "cache_n": 0,
+          "prompt_n": 15659,
+          "prompt_ms": 14370.0,
+          "prompt_per_token_ms": 0.918,
+          "prompt_per_second": 1089.7,
+          "predicted_n": 119,
+          "predicted_ms": 1528.8,
+          "predicted_per_token_ms": 12.847,
+          "predicted_per_second": 77.8
+        }
+      },
+      "1580": {
+        "run": 1,
+        "size": 1580,
+        "prompt_sha256": "bccc4b7266ce11cd198cb122943cbc7b61ca9b4719761c5053ab246af29bb600",
+        "answer": "{\"stock\":42,\"lead_days\":9}",
+        "expected": {
+          "stock": 42,
+          "lead_days": 9
+        },
+        "check_passed": true,
+        "prompt_tokens": 31659,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 34.77324102298007,
+        "ttfa_s": 34.77324102298007,
+        "elapsed_s": 35.0111182279943,
+        "decode_tok_s_est": 577.2483007974961,
+        "server_timings": {
+          "cache_n": 0,
+          "prompt_n": 31659,
+          "prompt_ms": 33205.9,
+          "prompt_per_token_ms": 1.049,
+          "prompt_per_second": 953.4,
+          "predicted_n": 121,
+          "predicted_ms": 1784.3,
+          "predicted_per_token_ms": 14.746,
+          "predicted_per_second": 67.8
+        }
+      },
+      "3200": {
+        "run": 1,
+        "size": 3200,
+        "prompt_sha256": "73fe9c977fa7241c2a82dd7497422ba650fef09cf978a494fd092a6e51726fc6",
+        "answer": "{\"stock\":0,\"lead_days\":5}",
+        "expected": {
+          "stock": 0,
+          "lead_days": 5
+        },
+        "check_passed": true,
+        "prompt_tokens": 64059,
+        "completion_tokens": 108,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 85.93311806599377,
+        "ttfa_s": 85.93311806599377,
+        "elapsed_s": 86.23244435401284,
+        "decode_tok_s_est": 408.9672873256743,
+        "server_timings": {
+          "cache_n": 0,
+          "prompt_n": 64059,
+          "prompt_ms": 84188.4,
+          "prompt_per_token_ms": 1.314,
+          "prompt_per_second": 760.9,
+          "predicted_n": 108,
+          "predicted_ms": 2002.3,
+          "predicted_per_token_ms": 18.54,
+          "predicted_per_second": 53.9
+        }
+      }
+    },
+    "strata-long": {}
+  },
+  "timeline": [
+    "Starting ada at 2026-11-22T16:02:36+00:00",
+    "ada inventory 420 exit 0 after 3s",
+    "ada inventory 780 exit 0 after 5s",
+    "ada inventory 1580 exit 0 after 10s",
+    "ada inventory 3200 exit 0 after 26s",
+    "Starting strata-dspark at 2026-11-22T16:03:25+00:00",
+    "strata-dspark inventory 420 exit 1 after 61s",
+    "strata-dspark inventory 780 exit 1 after 0s",
+    "strata-dspark inventory 1580 exit 1 after 0s",
+    "strata-dspark inventory 3200 exit 1 after 0s",
+    "Starting ada-long at 2026-11-22T16:04:38+00:00",
+    "ada-long request time limit 166s",
+    "ada-long inventory 15370 exit 1 after 59s",
+    "Starting strata-long at 2026-11-22T16:05:43+00:00",
+    "strata-long request time limit 295s",
+    "strata-long inventory 15370 exit 1 after 137s",
+    "Retrying the dedicated 300K+ Ada request at 2026-11-22T16:08:04+00:00",
+    "Dedicated Ada long request time limit 152s",
+    "Dedicated Ada long request exit 124 after 152s"
+  ],
+  "long_target": {
+    "prompt_tokens": 307459,
+    "prompt_sha256": "8666fd3198dc403b8fd393c582a6f46d7003899f039835870e7a1f09b93a1e26",
+    "expected": {
+      "stock": 80,
+      "lead_days": 9
+    }
+  },
+  "ada_long_last_counters": {
+    "prompt_tokens_total": 141328.0,
+    "prompt_seconds_total": 151.67114192800003,
+    "tokens_predicted_total": 4.0
+  },
+  "strata_cuda_notes": [
+    "[InkCUDA] Loaded <model-dir>/Inkling-2-Mini-SQ-20.strata (SQ-20): trunk=3.67 GB (0.35s), experts=3072 VRAM / 0 host (1.41s, hyb=0, promo=0, pf_buf=0MB), sm120_tc=0, screen=0",
+    "[InkCUDA] Auto-sizing max_ctx 327680 -> 286912 for parallel=1 (5.07 GiB free VRAM)"
+  ]
+}

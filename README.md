@@ -1,56 +1,66 @@
+![Inkling Ada banner](assets/inkling-ada-banner.jpg)
+
 # Inkling Ada
 
-Serve Thinking Machines’ [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini) on a single RTX 4090 and measure changes against a llama.cpp baseline. The first version uses NInfer-all for CUDA execution, model loading, and the OpenAI-compatible API.
+Inkling Ada is an open-source experiment in serving Thinking Machines’ [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini) on an RTX 4090. It builds on [NInfer-all](https://github.com/iamwavecut/ninfer-all) for CUDA execution, model loading, and an OpenAI-compatible API. It pairs an SM89 tensor-core attention patch with reproducible serving benchmarks and raw results.
 
-## Run the server
+[Quick start](#get-started) · [Benchmarks](#rtx-4090-benchmarks) · [Contributing](#contributing)
 
-Use a supported NVIDIA driver and the CUDA 12.9 Linux archive from [NInfer-all 2026-11-22.3](https://github.com/iamwavecut/ninfer-all/releases/tag/2026-11-22.3). Verify the numbered archive parts against its SHA-256 manifest. The archive targets Debian 13. On older Linux hosts, use the archive’s Dockerfile and NVIDIA Container Toolkit as described in the [NInfer Linux release guide](https://github.com/iamwavecut/ninfer-all/blob/master/docs/release-archive-linux.md).
+## Get started
 
-Download the [UD-IQ4_XS NInfer artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3). It retains the upstream Unsloth GGUF’s quantized weight blocks and includes the DSpark drafter.
+Use a supported NVIDIA driver and the CUDA 12.9 Linux archive from [NInfer-all 2026-11-22.3](https://github.com/iamwavecut/ninfer-all/releases/tag/2026-11-22.3). Verify the numbered archive parts against its SHA-256 manifest. The archive targets Debian 13. On older Linux hosts, use its Dockerfile and NVIDIA Container Toolkit as described in the [NInfer Linux release guide](https://github.com/iamwavecut/ninfer-all/blob/master/docs/release-archive-linux.md).
+
+Download the [UD-IQ4_XS NInfer artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3), then start the stock upstream server in one terminal.
 
 ```bash
 bash serve.sh /path/to/ninfer-serve /path/to/Inkling-2-Mini-UD-IQ4_XS-ninfer-v3.ninfer
-python3 benchmark.py http://127.0.0.1:8080 inkling-2-mini
 ```
 
-The profile keeps experts on the GPU and uses a 16,384-token context, FP16 KV, and one active sequence. Pass the port followed by `dspark` to enable speculative decoding. For example, use `8080 dspark` as the final two arguments to `serve.sh`. The server binds to loopback.
-
-## Compare engines
-
-Use the [Unsloth mainline UD-IQ4_XS GGUF](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/main/Mainline_Support) and [llama.cpp b12613](https://github.com/ggml-org/llama.cpp/releases/tag/b12613) for the baseline. Save the `.gguf_file` artifact locally with the `.gguf` extension. Run each server in turn on an otherwise idle GPU.
+Run the four completed-answer fixtures in a second terminal.
 
 ```bash
-llama-server -m Inkling-2-Mini-UD-IQ4_XS.gguf -a inkling-2-mini \
-  --host 127.0.0.1 --port 8080 -c 16384 -ngl 99 -np 1 -b 2048 -ub 512 \
-  -fa auto -ctk f16 -ctv f16 --fit off --jinja
-python3 benchmark.py http://127.0.0.1:8080 inkling-2-mini
+python3 benchmark_completed.py 8080 1
 ```
 
-The benchmark sends a READY smoke prompt and runs three single-stream requests at each of two prompt sizes. Each measured request has a 128-token output cap and a unique prefix. Output is JSON Lines with prompt hashes, token counts, cache counts when available, engine timing when available, and client latency. First streamed token includes reasoning. First visible answer can be null if the output cap is reached during reasoning.
+The `serve.sh` launcher binds the server to loopback, keeps experts on the GPU, and uses a 16,384-token context, FP16 KV, and one active sequence. Append `8080 dspark` to the `serve.sh` command to enable speculative decoding. The commands above run the stock release. For the patched binary and matched scalar baseline, use the [pinned SM89 build instructions](docs/sm89-tensor-qk.md#apply-and-reproduce).
 
-## RTX 4090 results
+## RTX 4090 benchmarks
 
-Measured on bm04 on November 22, 2026. Rates and latencies are medians of three requests per engine and prompt length. Peak VRAM is the highest sample across both lengths, taken every 500 ms. [Per-request data](results/bm04-2026-11-22.json)
+Each benchmark ran one stream on the same RTX 4090. Ada used UD-IQ4_XS and the tensor QK patch. Strata v0.2.19 used its Inkling engine 0.1.65 and SQ-20 weights. Both used FP16 KV and a 16,384-token context for these four fixtures. Each number is the median completion time of four requests, all of which passed their fixture checks. Output lengths and prose wording can differ.
 
-| Engine | Prompt tokens | Prefill tok/s | Decode tok/s | First token | Total time | Peak VRAM |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| llama.cpp | 2,143 | 1,976 | 72.1 | 1.15 s | 2.88 s | 17.2 GiB |
-| NInfer | 2,141 | 4,284 | 130.3 | 0.52 s | 1.48 s | 17.7 GiB |
-| NInfer + DSpark | 2,141 | 4,250 | 112.6 | 0.53 s | 1.63 s | 18.4 GiB |
-| llama.cpp | 8,443 | 1,770 | 69.8 | 4.88 s | 6.66 s | 17.2 GiB |
-| NInfer | 8,441 | 4,067 | 125.3 | 2.09 s | 3.09 s | 17.7 GiB |
-| NInfer + DSpark | 8,441 | 4,001 | 105.7 | 2.13 s | 3.31 s | 18.4 GiB |
+| Fixture | Prompt tokens | Ada | Strata | Strata + DSpark |
+| --- | ---: | ---: | ---: | ---: |
+| Arithmetic | 30 | 0.419 s | 0.595 s | 0.332 s |
+| Prose | 52 | 2.298 s | 3.376 s | 2.072 s |
+| Inventory retrieval | 2,159 | 1.381 s | 1.981 s | 1.197 s |
+| Inventory retrieval | 8,459 | 2.791 s | 3.880 s | 3.142 s |
 
-Plain NInfer decoded 1.8× as fast and processed prompts 2.2–2.3× as fast as llama.cpp. DSpark accepted 19% of drafted tokens and reduced decode throughput by 14–16% versus plain NInfer on this workload. That result sets the default to `none`.
+Strata with DSpark led on arithmetic, prose, and the 2,159-token lookup. Ada led at 8,459 tokens. The stacks use different weight packs and can generate different numbers of tokens. [Completed-answer data](results/rtx4090-strata-completed.json)
 
-All three configurations returned READY on the smoke prompt. All 18 measured requests reached the 128-token cap during reasoning. The results establish throughput for this synthetic workload. Completed-answer latency, answer quality, long-context retrieval, vision, and concurrency remain unmeasured.
+### Longer prompts
 
-Request text and UD-IQ4_XS weight blocks matched across engines. Their template handling differed by two prompt tokens, and llama.cpp reused 12 shared prefix tokens per request while NInfer reported zero reuse. NInfer ran in a Debian 13 container using the CUDA 12.9 release. llama.cpp ran natively with CUDA 12.8. The table uses each engine’s reported prefill and decode rates, and the same client’s streamed first-token and total time.
+![Paired RTX 4090 latency bars. Ada and Strata complete the 15.7K prompt in 4.71 and 15.91 seconds, and the 64K prompt in 26.02 and 86.23 seconds.](assets/rtx4090-context-benchmark.png)
 
-## Design references
+The longer context sweep ran one correct completed retrieval request per point. Ada used UD-IQ4_XS, FP16 KV, and a configured 65,536-token context. Strata used SQ-20, FP8 KV, 64-token chunks, and no drafting after DSpark exhausted VRAM in the large configuration. Its CUDA configuration was automatically capped at 286,912 tokens.
 
-[Ada prefill profiling](docs/sm89-prefill-attention.md) found that a wider scalar tile slowed full attention. The [tensor-core QK experiment](docs/sm89-tensor-qk.md) kept the 8-row geometry and cut median completion time from 3.010 to 2.796 seconds on the 8,459-token fixture while keeping relative bias and softmax in FP32.
+| Prompt tokens | Ada completion | Strata completion |
+| ---: | ---: | ---: |
+| 15,659 | 4.706 s | 15.911 s |
+| 31,659 | 10.218 s | 35.011 s |
+| 64,059 | 26.024 s | 86.232 s |
 
-Inkling evaluates 24 weight layers in 48 visits. The 12 middle layers run three times and share weights, with separate KV and short-convolution state per visit. Keeping the quantized experts on the GPU removes expert transfers from the short-context benchmark. Quantized KV and expert paging are candidates for longer contexts once measurements show which resource is limiting. [Inkling architecture in vLLM](https://vllm-project.github.io/2026/11/20/inkling2-mini.html)
+At a verified 307,459-token prompt, Ada allocated a 327,680-token MXFP8 KV cache and prefilled about 141,000 tokens before the 152-second cutoff. The recorded first attempt exited after 59 seconds because of a harness error. Strata was limited by its 286,912-token KV cap. The 307K experiment recorded partial prefill and a capacity limit. [Context sweep data](results/rtx4090-context-sweep.json)
 
-[Strata](https://github.com/Niko1221/Strata) provides a reference for host and GPU expert placement. [Basalt](https://github.com/jesdga95/basalt/blob/main/docs/models/inkling2.md) provides a reference for attention with learned relative bias, per-visit cache sizing, and adaptive DSpark windows. Basalt’s implementation targets Blackwell. Any Ada kernel work should first be compared with the existing NInfer path on the same weights and prompts.
+In a separate matched-weights experiment, the tensor QK patch reduced median completion time from 3.010 to 2.796 seconds on the 8,459-token fixture. [Experiment and numerical checks](docs/sm89-tensor-qk.md)
+
+The [original llama.cpp baseline](docs/llama-cpp-baseline.md) measures a synthetic 128-token output cap. Its measured requests reached that cap during reasoning.
+
+## Contributing
+
+Independent benchmark runs, correctness tests, focused SM89 improvements, and build documentation are welcome. Open an [issue](https://github.com/Fleetborn/inkling-ada/issues/new) describing the hardware, model, settings, and observed result before starting a larger change. For a small fix, open a pull request with the relevant check or measurement. Preserve raw results and explain differences in weights, context, cache, and decoding settings when comparing runs.
+
+Inkling Ada uses the [Apache 2.0 license](LICENSE). The [logo](assets/inkling-ada-logo.png) and [share image](assets/inkling-ada-banner.jpg) are in the repository.
+
+## Acknowledgments
+
+NInfer-all provides the foundation for this work. [Basalt](https://github.com/jesdga95/basalt/blob/main/docs/models/inkling2.md) and [Strata](https://github.com/Niko1221/Strata) provide technical inspiration for Inkling attention, cache design, speculative decoding, and expert placement.

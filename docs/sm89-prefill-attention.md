@@ -1,6 +1,6 @@
 # Ada full-attention prefill experiment
 
-On bm04, Nsight Systems measured 977 ms in Inkling’s prompt attention across 8,448 input tokens, or 50% of summed GPU kernel time. The 40 full-context attention calls accounted for 436 ms, or 22.3% of summed GPU kernel time. The profile uses NInfer-all `18029c8e0ce2555bb499e04be24d7a4e9c12a5bc`, FP16 KV, GPU-resident experts, and one sequence on the RTX 4090. [Baseline trace summary](../results/bm04-sm89-baseline-profile.json)
+On the benchmark host, Nsight Systems measured 977 ms in Inkling’s prompt attention across 8,448 input tokens, or 50% of summed GPU kernel time. The 40 full-context attention calls accounted for 436 ms, or 22.3% of summed GPU kernel time. The profile uses NInfer-all `18029c8e0ce2555bb499e04be24d7a4e9c12a5bc`, FP16 KV, GPU-resident experts, and one sequence on the RTX 4090. [Baseline trace summary](../results/rtx4090-sm89-baseline-profile.json)
 
 Basalt stages each K/V tile once for a wider group of query rows. The first Ada experiment applies that reuse pattern to NInfer’s existing scalar attention math. It increases the prompt tile from 8 to 16 query rows per block on SM89 for a contiguous, single-sequence full-attention chunk with FP16 K/V. [Basalt prompt attention](https://github.com/jesdga95/basalt/blob/0dc981c8c9593e0d7cd0b9059aa74cfa4545814d/src/models/inkling2/kernels/attn_prompt.cu)
 
@@ -10,7 +10,7 @@ Basalt stages each K/V tile once for a wider group of query rows. The first Ada 
 
 ## Result
 
-Keep the 8-row route as the default. Across 40 matching full-attention calls, the wider tile took 471.2 ms versus 449.2 ms for the baseline, a 4.9% regression. It used 512 threads and 90 registers per thread, versus 256 threads and 96 registers for the baseline. Neither kernel spilled registers. The 8,459-token answer took 0.54% to 1.33% longer in every paired run. [Per-request results and trace summaries](../results/bm04-sm89-full-prefill.json)
+Keep the 8-row route as the default. Across 40 matching full-attention calls, the wider tile took 471.2 ms versus 449.2 ms for the baseline, a 4.9% regression. It used 512 threads and 90 registers per thread, versus 256 threads and 96 registers for the baseline. Neither kernel spilled registers. The 8,459-token answer took 0.54% to 1.33% longer in every paired run. [Per-request results and trace summaries](../results/rtx4090-sm89-full-prefill.json)
 
 | Fixture | Input tokens | Baseline median | 16-row median |
 | --- | ---: | ---: | ---: |
