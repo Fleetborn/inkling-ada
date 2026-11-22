@@ -1393,6 +1393,18 @@
     ]
   },
   "gpu_numerical_test_exit": 0,
+  "review_validation": {
+    "gpu": "RTX 4090 SM89",
+    "patch_sha256": "f290d1f8dcdc56be89c9f88e719f2903a6360eac5394706cdd7b610ba31c7253",
+    "kernel_test_exit": 0,
+    "bf16_relative_rms_limit": 0.0015,
+    "bf16_tensor_vs_scalar_relative_rms": {
+      "chunk_after_600": 0.000566,
+      "chunk_at_0": 0.000452,
+      "17_rows_after_1103": 0.00058,
+      "no_bias": 0.000828
+    }
+  },
   "gpu_numerical_attention_checks": [
     "OK   attention window ring, decode, splits 1 (49296 biased, 0 unbiased scores): bf16 0.00166, q8_1 0.00635",
     "OK   attention window ring, decode, splits 9 (49296 biased, 0 unbiased scores): bf16 0.00163, q8_1 0.00622",

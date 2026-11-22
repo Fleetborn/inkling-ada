@@ -134,10 +134,18 @@ index 56e1b03..87b3665 100644
          return;
      }
 diff --git a/tests/models/inkling2/test_kernels.cpp b/tests/models/inkling2/test_kernels.cpp
-index 1e78171..30fbbef 100644
+index 1e78171..fb0fa35 100644
 --- a/tests/models/inkling2/test_kernels.cpp
 +++ b/tests/models/inkling2/test_kernels.cpp
-@@ -691,6 +691,8 @@ struct AttentionCase {
+@@ -39,6 +39,7 @@
+ #include "models/inkling2/cpu_experts.h"
+ #include "models/inkling2/kernels.h"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ #include "ops/linear/gguf/ggml_bridge.h"
+ #include "ops/linear/gguf/gguf_linear.h"
+ 
+@@ -691,6 +692,8 @@ struct AttentionCase {
      RowsCase rows;
      int ring = 0, window = 0, splits = 1;
      float sink_offset = 0.0f;
@@ -146,7 +154,7 @@ index 1e78171..30fbbef 100644
  };
  
  void attention_case(const AttentionCase& c, std::mt19937& rng) {
-@@ -707,7 +709,8 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+@@ -707,7 +710,8 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
          for (auto& v : kc) { v = __float2half(1.5f * n(rng)); }
          for (auto& v : vc) { v = __float2half(n(rng)); }
      }
@@ -156,7 +164,7 @@ index 1e78171..30fbbef 100644
      const auto r     = normal(std::size_t(t) * kHeads * kRel, 1.0f, rng);
      const auto table = normal(std::size_t(kExtent) * kRel, 1.0f, rng);
      const std::int64_t gate_stride = kHeads * kD + 32, sink_stride = kHeads + 3;
-@@ -724,11 +727,11 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+@@ -724,11 +728,11 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
      k::AttentionArgs a;
      a.rows        = rows.rows;
      a.q           = as<float>(dq);
@@ -170,7 +178,33 @@ index 1e78171..30fbbef 100644
      a.k_cache     = as<__half>(dk);
      a.v_cache     = as<__half>(dv);
      a.seq_stride  = seq_stride;
-@@ -788,7 +791,7 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+@@ -757,6 +761,25 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+     check(cudaMemcpy(got_q.data(), a.out_q.qs, got_q.size(), cudaMemcpyDeviceToHost), "q8 qs");
+     check(cudaMemcpy(got_d.data(), a.out_q.ds, got_d.size() * 4, cudaMemcpyDeviceToHost), "q8 ds");
+ 
++    if (rc.chunk && c.window == 0 && c.ring == 0 && rc.starts.empty() && rc.sequences.empty() &&
++        !c.overflow_query && ops::detail::current_device_compute_capability(0) == 89) {
++        // All rows stay shared, but the branch descriptor selects the original scalar route.
++        auto starts   = upload(std::vector<std::int32_t>(t, 0));
++        a.rows.starts = as<std::int32_t>(starts);
++        a.rows.shared = t;
++        a.out_q       = {};
++        a.out         = as<bf16>(out);
++        k::attention(a, nullptr);
++        sync("attention scalar bf16");
++        const auto scalar = download<bf16>(out, got.size());
++        Error drift;
++        for (std::size_t i = 0; i < got.size(); ++i) {
++            drift.add(__bfloat162float(got[i]), __bfloat162float(scalar[i]));
++        }
++        report(drift.rel() < 1.5e-3,
++               "attention " + c.name + ": tensor vs scalar bf16 " + num(drift.rel()));
++    }
++
+     const int group = kHeads / kKv;
+     Error eb, eq;
+     int biased = 0, unbiased = 0;
+@@ -788,7 +811,7 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
                  const std::int64_t base = s * seq_stride + kv * head_stride + std::int64_t(slot) * kD;
                  double d = 0;
                  for (int i = 0; i < kD; ++i) { d += double(qh[i]) * scale * __half2float(kc[base + i]); }
@@ -179,7 +213,7 @@ index 1e78171..30fbbef 100644
                      for (int i = 0; i < kRel; ++i) { d += double(rh[i]) * table[std::size_t(distance) * kRel + i]; }
                      ++biased;
                  } else {
-@@ -1528,6 +1531,10 @@ int main() {
+@@ -1528,6 +1551,10 @@ int main() {
          attention_case({"window ring, chunk after 1100", {iota(1100, 37), {}, true, 1100}, ring, kWindow, 1}, rng);
          attention_case({"full cache, chunk after 600", {iota(600, 21), {}, true, 600}, 0, 0, 1}, rng);
          attention_case({"full cache, chunk at 0", {iota(0, 64), {}, true, 0}, 0, 0, 1}, rng);

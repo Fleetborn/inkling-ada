@@ -10,7 +10,7 @@ Round scaled queries to FP16 once per block. A query outside finite FP16 range s
 
 ## Measured result
 
-On bm04’s RTX 4090, 40 full-attention calls took **232.4 ms versus 447.5 ms** on the 8-row scalar build, a 48.1% reduction. The trace selected the tensor-core specialization for all 40 calls. The SM89 binary contains `HMMA.16816.F32` for that kernel. At 8,459 input tokens, median prompt throughput rose from 4,094 to 4,611 tok/s and time to the first visible answer fell from 2.882 to 2.669 s. [Per-request results, numerical checks, and matched traces](../results/bm04-sm89-tensor-qk.json)
+On bm04’s RTX 4090, 40 full-attention calls took **232.4 ms versus 447.5 ms** on the 8-row scalar build, a 48.1% reduction. The trace selected the tensor-core specialization for all 40 calls. The SM89 binary contains `HMMA.16816.F32` for that kernel. At 8,459 input tokens, median prompt throughput rose from 4,094 to 4,611 tok/s. Median time to first streamed token fell from 2.084 to 1.853 s, and time to the first visible answer fell from 2.882 to 2.669 s. [Per-request results, numerical checks, and trace summaries](../results/bm04-sm89-tensor-qk.json)
 
 | Fixture | Input tokens | Scalar QK median | Tensor-core QK median |
 | --- | ---: | ---: | ---: |
@@ -19,8 +19,12 @@ On bm04’s RTX 4090, 40 full-attention calls took **232.4 ms versus 447.5 ms** 
 | Inventory retrieval | 2,159 | 1.391 s | 1.381 s |
 | Inventory retrieval | 8,459 | 3.010 s | 2.796 s |
 
-All 32 requests stopped normally and satisfied their fixture checks. Arithmetic and inventory answer text matched in all 12 pairs. The four prose answers differed in wording and output length. The existing GPU oracle passed for BF16 and packed Q8 output, including the new tests for an incomplete tile, a nonzero cache prefix, a call without relative bias, and the scalar fallback for a query outside FP16 range. The comparison covers single-stream UD-IQ4_XS, FP16 KV, four synthetic fixtures, and one GPU.
+All 32 requests stopped normally and satisfied their fixture checks. Arithmetic and inventory answer text matched in all 12 pairs. The four prose pairs differed in wording. Completion-token counts, including reasoning, differed in all four prose pairs, three of four 2,159-token inventory pairs, and two of four 8,459-token inventory pairs. The completion latencies include those differences.
+
+The GPU oracle passed for BF16 and packed Q8 output, including tests for an incomplete tile, a nonzero cache prefix, a call without relative bias, and an out-of-range FP16 query. In a follow-up GPU test on bm04, the direct BF16 comparison against scalar QK had a maximum relative RMS error of `8.28e-4` across four cases, within the `1.5e-3` limit. The benchmark covers single-stream UD-IQ4_XS, FP16 KV, four synthetic fixtures, and one GPU.
 
 ## Apply and reproduce
 
-Build the scalar baseline from the pinned NInfer revision. Apply the [tensor QK patch](../patches/ninfer-sm89-tensor-qk.patch) to that clean revision for the candidate build, then follow the [same SM89 build and profiling commands](sm89-prefill-attention.md#reproduce-the-comparison). Run `benchmark_completed.py` with run numbers 1 and 2 on the baseline and then the candidate. Run numbers 3 and 4 on the candidate and then the baseline. Both builds use identical model weights and `serve.sh` settings with speculation disabled.
+Build the scalar baseline from the pinned clean NInfer revision. For the candidate, start from another clean checkout of that revision and apply only the [tensor QK patch](../patches/ninfer-sm89-tensor-qk.patch). The linked SM89 build and profiling commands apply to either experiment. Run the GPU test on SM89 to exercise the tensor path and its direct scalar comparison. [Build and profiling commands](sm89-prefill-attention.md#reproduce-the-comparison)
+
+Run `benchmark_completed.py` with run numbers 1 and 2 on the baseline and then the candidate. Run numbers 3 and 4 on the candidate and then the baseline. Both builds use identical model weights and `serve.sh` settings with speculation disabled.
