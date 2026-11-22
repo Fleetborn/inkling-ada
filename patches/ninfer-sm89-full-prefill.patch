@@ -1,0 +1,118 @@
+diff --git a/src/models/inkling2/kernels.cu b/src/models/inkling2/kernels.cu
+index 56e1b03..8904bdd 100644
+--- a/src/models/inkling2/kernels.cu
++++ b/src/models/inkling2/kernels.cu
+@@ -4,6 +4,7 @@
+ #include "models/inkling2/config.h"
+ #include "models/inkling2/kv_codec.cuh"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ 
+ #include <cublas_v2.h>
+ #include <cuda_bf16.h>
+@@ -776,8 +777,8 @@ __device__ __forceinline__ void key_range(const AttentionArgs& a, int t0, int t1
+ }
+ 
+ template <int kRows>
+-__global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(AttentionArgs a) {
+-    constexpr int kWarps = kRows == 1 ? 4 : 8;
++__global__ void __launch_bounds__(kRows == 1 ? 128 : 32 * kRows) attention_kernel(AttentionArgs a) {
++    constexpr int kWarps = kRows == 1 ? 4 : kRows;
+     const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
+     const int group   = a.query_heads / a.kv_heads;
+     const int kv_head = blockIdx.y;
+@@ -860,9 +861,16 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+         }
+         __syncthreads();
+         if (!row_ok) { continue; }
++        int row_count = count;
++        if constexpr (kRows == 16) {
++            // Keep each half of the wider block's original key extent and zero padding.
++            const int row_end = a.rows.first + min(t1, t0 + (warp / 8 + 1) * 8);
++            if (tile >= row_end) { continue; }
++            row_count = min(count, row_end - tile);
++        }
+         int distance = 0;
+         const bool visible =
+-            lane_key < count && (a.uniform || sees(a, t, tile + lane_key, distance));
++            lane_key < row_count && (a.uniform || sees(a, t, tile + lane_key, distance));
+         const bool biased  = visible && !a.uniform && distance < a.extent;
+ #pragma unroll
+         for (int h = 0; h < kMaxGroup; ++h) {
+@@ -899,7 +907,10 @@ __global__ void __launch_bounds__(kRows == 1 ? 128 : 256) attention_kernel(Atten
+                 const int src = ((kk & 8) ? 16 : 0) | ((kk & 4) ? 8 : 0) | ((kk & 2) ? 4 : 0) |
+                                 ((kk & 1) ? 2 : 0);
+                 const float pk = __shfl_sync(0xFFFFFFFFu, p, src);
+-                const uint2 w = *reinterpret_cast<const uint2*>(&v_s[kk][4 * lane]);
++                uint2 w = *reinterpret_cast<const uint2*>(&v_s[kk][4 * lane]);
++                if constexpr (kRows == 16) {
++                    if (kk >= row_count) { w = make_uint2(0, 0); }
++                }
+                 const float2 f0 = __half22float2(*reinterpret_cast<const __half2*>(&w.x));
+                 const float2 f1 = __half22float2(*reinterpret_cast<const __half2*>(&w.y));
+                 acc[h][0] += pk * f0.x;
+@@ -1832,7 +1843,13 @@ void attention(const AttentionArgs& args, cudaStream_t stream) {
+     }
+     if (args.rows.chunk) {
+         if (args.splits != 1) { throw std::invalid_argument("inkling2 attention: chunk splits"); }
+-        attention_kernel<8><<<dim3(blocks_for(t, 8), args.kv_heads, 1), 256, 0, stream>>>(args);
++        if (t > 8 && args.window == 0 && args.ring == 0 && args.rows.starts == nullptr &&
++            args.rows.sequences == nullptr && args.k_plane.coding == KvCoding::F16 &&
++            args.v_plane.coding == KvCoding::F16 && ops::detail::current_device_compute_capability(0) == 89) {
++            attention_kernel<16><<<dim3(blocks_for(t, 16), args.kv_heads, 1), 512, 0, stream>>>(args);
++        } else {
++            attention_kernel<8><<<dim3(blocks_for(t, 8), args.kv_heads, 1), 256, 0, stream>>>(args);
++        }
+         check_launch("attention");
+         return;
+     }
+diff --git a/tests/models/inkling2/test_kernels.cpp b/tests/models/inkling2/test_kernels.cpp
+index 1e78171..c4f9c09 100644
+--- a/tests/models/inkling2/test_kernels.cpp
++++ b/tests/models/inkling2/test_kernels.cpp
+@@ -39,6 +39,7 @@
+ #include "models/inkling2/cpu_experts.h"
+ #include "models/inkling2/kernels.h"
+ #include "models/inkling2/situ.h"
++#include "ops/common/device_multiprocessors.h"
+ #include "ops/linear/gguf/ggml_bridge.h"
+ #include "ops/linear/gguf/gguf_linear.h"
+ 
+@@ -757,6 +758,25 @@ void attention_case(const AttentionCase& c, std::mt19937& rng) {
+     check(cudaMemcpy(got_q.data(), a.out_q.qs, got_q.size(), cudaMemcpyDeviceToHost), "q8 qs");
+     check(cudaMemcpy(got_d.data(), a.out_q.ds, got_d.size() * 4, cudaMemcpyDeviceToHost), "q8 ds");
+ 
++    if (rc.chunk && c.window == 0 && c.ring == 0 && rc.starts.empty() && rc.sequences.empty() && t > 8 &&
++        ops::detail::current_device_compute_capability(0) == 89) {
++        // All rows stay shared, but the branch descriptor selects the original eight-row route.
++        auto starts = upload(std::vector<std::int32_t>(t, 0));
++        a.rows.starts = as<std::int32_t>(starts);
++        a.rows.shared = t;
++        k::attention(a, nullptr);
++        sync("attention eight-row q8");
++        const auto ref_q8 = download<std::uint8_t>(q8, got_q.size() + got_d.size() * sizeof(half2));
++        a.out_q = {};
++        a.out   = as<bf16>(out);
++        k::attention(a, nullptr);
++        sync("attention eight-row bf16");
++        const auto ref = download<bf16>(out, got.size());
++        report(same_bits(got, ref) && std::memcmp(ref_q8.data(), got_q.data(), got_q.size()) == 0 &&
++                   std::memcmp(ref_q8.data() + got_q.size(), got_d.data(), got_d.size() * sizeof(half2)) == 0,
++               "attention " + c.name + ": eight-row parity in bf16 and q8_1");
++    }
++
+     const int group = kHeads / kKv;
+     Error eb, eq;
+     int biased = 0, unbiased = 0;
+@@ -1530,6 +1550,11 @@ int main() {
+         attention_case({"full cache, chunk at 0", {iota(0, 64), {}, true, 0}, 0, 0, 1}, rng);
+         attention_case({"full cache, branches", branches, 0, 0, 1}, rng);
+         attention_case({"window ring, branches", branches, ring, kWindow, 1}, rng);
++        for (const int rows : {1, 7, 8, 9, 15, 16, 17, 37}) {
++            attention_case({"full cache, " + std::to_string(rows) + " rows after 1103",
++                            {iota(1103, rows), {}, true, 1103}}, rng);
++        }
++        attention_case({"full cache, 512 rows at 0", {iota(0, 512), {}, true, 0}}, rng);
+ 
+         residual_case("decode rows", decode, Product::Plain, false, 0, rng);
+         residual_case("verification rows", verify, Product::Fixed, false, 3, rng);

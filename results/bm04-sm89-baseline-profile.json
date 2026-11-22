@@ -1,0 +1,191 @@
+{
+  "hardware": "RTX 4090 SM89, driver 595.99.02",
+  "engine": "NInfer-all 2026-11-22.3+18029c8, CUDA 12.9.86",
+  "nsight": "Nsight Systems 2026.5.2.323",
+  "workloads": {
+    "prefill": "pp8448",
+    "decode": "tg128",
+    "combined": "pp8448+tg128"
+  },
+  "configuration": {
+    "context": 16384,
+    "sequences": 1,
+    "kv": "fp16",
+    "experts": "device",
+    "spec": "none",
+    "warmups": 1
+  },
+  "profiles": {
+    "prefill": {
+      "gpu_kernel_ms": 1953.755589,
+      "top_kernels": {
+        "void ninfer::models::inkling2::kernels::<unnamed>::attention_kernel<(int)8>(ninfer::models::inkling2::kernels::AttentionArgs)": {
+          "calls": 240,
+          "gpu_ms": 976.7184340000003
+        },
+        "void ninfer::ops::gguf::detail::moe_mul_mat_q<(ggml_type)40, (int)128, (int)0>(const void *const *, const int *, const int *, const int *, const int *, const int *, float *, uint3, int, int, int)": {
+          "calls": 352,
+          "gpu_ms": 441.20845500000013
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::residual_kernel(ninfer::models::inkling2::kernels::ResidualArgs)": {
+          "calls": 480,
+          "gpu_ms": 92.91771299999988
+        },
+        "void mul_mat_q<(ggml_type)8, (int)128, (bool)0, (ggml_prec)30, float, (bool)0, (int)0>(const char *, const int *, const int *, const int *, T5 *, float *, const float *, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3, float *, int)": {
+          "calls": 995,
+          "gpu_ms": 88.8594480000002
+        },
+        "void ninfer::ops::gguf::detail::moe_mul_mat_q<(ggml_type)40, (int)32, (int)0>(const void *const *, const int *, const int *, const int *, const int *, const int *, float *, uint3, int, int, int)": {
+          "calls": 88,
+          "gpu_ms": 51.02303199999999
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::control_apply_kernel(ninfer::models::inkling2::kernels::ControlApply)": {
+          "calls": 240,
+          "gpu_ms": 43.761577
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::situ_rows_kernel(const float *, long, int, const float *, float, float, __nv_bfloat16 *)": {
+          "calls": 240,
+          "gpu_ms": 39.70604499999998
+        },
+        "ampere_sgemm_32x32_sliced1x4_tn": {
+          "calls": 752,
+          "gpu_ms": 32.66587199999997
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::control_inputs_kernel(ninfer::models::inkling2::kernels::ControlInputs)": {
+          "calls": 240,
+          "gpu_ms": 31.73049000000001
+        },
+        "void ninfer::ops::gguf::detail::<unnamed>::quantize_matrix_kernel<(mmq_q8_1_ds_layout)0>(const __nv_bfloat16 *, const int *, const int *, int, block_q8_1_mmq *, int, int, int)": {
+          "calls": 1560,
+          "gpu_ms": 29.03282099999999
+        },
+        "ampere_sgemm_32x128_tn": {
+          "calls": 768,
+          "gpu_ms": 20.182348000000026
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::mix_kernel(ninfer::models::inkling2::kernels::MixArgs)": {
+          "calls": 130,
+          "gpu_ms": 15.324184999999996
+        }
+      },
+      "full_attention": {
+        "calls": 40,
+        "gpu_ms": 435.733973,
+        "block_x_regs_local_shared": [
+          [
+            256,
+            96,
+            0,
+            10240
+          ]
+        ]
+      }
+    },
+    "decode": {
+      "gpu_kernel_ms": 927.109958,
+      "top_kernels": {
+        "void ninfer::ops::gguf::detail::vec::moe_kernel<(ggml_type)40, (int)1, (bool)0, (bool)0>(ninfer::ops::gguf::detail::MoeVecArgs)": {
+          "calls": 11352,
+          "gpu_ms": 285.02913899999874
+        },
+        "void ninfer::ops::gguf::detail::vec::kernel<(ggml_type)8, (int)1, (bool)0, (int)0, (bool)0>(ninfer::ops::gguf::detail::VecArgs)": {
+          "calls": 25671,
+          "gpu_ms": 221.03049199999285
+        },
+        "void ninfer::ops::gguf::detail::vec::kernel<(ggml_type)14, (int)1, (bool)0, (int)0, (bool)1>(ninfer::ops::gguf::detail::VecArgs)": {
+          "calls": 2709,
+          "gpu_ms": 68.4761999999996
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::mix_split_rows_kernel(ninfer::models::inkling2::kernels::MixArgs, bool)": {
+          "calls": 21672,
+          "gpu_ms": 62.17166599999633
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::residual_split_kernel(ninfer::models::inkling2::kernels::ResidualArgs)": {
+          "calls": 12384,
+          "gpu_ms": 39.252385000001105
+        },
+        "void ninfer::models::inkling2::kernels::<unnamed>::gemv_kernel<(int)1>(const float *, const float *, int, int, long, float *, long)": {
+          "calls": 14448,
+          "gpu_ms": 28.803926000001017
+        },
+        "void ninfer::models::inkling2::kernels::<unnamed>::attention_kernel<(int)1>(ninfer::models::inkling2::kernels::AttentionArgs)": {
+          "calls": 6144,
+          "gpu_ms": 28.22270099999949
+        },
+        "void ninfer::models::inkling2::kernels::<unnamed>::gemv_batch_kernel<(int)1>(ninfer::models::inkling2::kernels::GemvBatch, int, long, long)": {
+          "calls": 6192,
+          "gpu_ms": 25.073624000000073
+        },
+        "void ninfer::models::inkling2::kernels::<unnamed>::gemv_short_kernel<(int)1>(ninfer::models::inkling2::kernels::GemvBatch, int, int, long, long)": {
+          "calls": 6192,
+          "gpu_ms": 23.54476600000072
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::route_sorted_kernel(ninfer::models::inkling2::kernels::RouteArgs)": {
+          "calls": 6192,
+          "gpu_ms": 20.52950300000077
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::kv_post_kernel(ninfer::models::inkling2::kernels::KvArgs)": {
+          "calls": 6192,
+          "gpu_ms": 18.326489999999485
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::control_apply_kernel(ninfer::models::inkling2::kernels::ControlApply)": {
+          "calls": 6192,
+          "gpu_ms": 15.86770500000091
+        }
+      }
+    },
+    "combined": {
+      "gpu_kernel_ms": 2986.89712,
+      "top_kernels": {
+        "void ninfer::models::inkling2::kernels::<unnamed>::attention_kernel<(int)8>(ninfer::models::inkling2::kernels::AttentionArgs)": {
+          "calls": 240,
+          "gpu_ms": 981.3413480000002
+        },
+        "void ninfer::ops::gguf::detail::moe_mul_mat_q<(ggml_type)40, (int)128, (int)0>(const void *const *, const int *, const int *, const int *, const int *, const int *, float *, uint3, int, int, int)": {
+          "calls": 352,
+          "gpu_ms": 442.8095359999999
+        },
+        "void ninfer::ops::gguf::detail::vec::moe_kernel<(ggml_type)40, (int)1, (bool)0, (bool)0>(ninfer::ops::gguf::detail::MoeVecArgs)": {
+          "calls": 11264,
+          "gpu_ms": 283.70333699999964
+        },
+        "void ninfer::ops::gguf::detail::vec::kernel<(ggml_type)8, (int)1, (bool)0, (int)0, (bool)0>(ninfer::ops::gguf::detail::VecArgs)": {
+          "calls": 25472,
+          "gpu_ms": 220.67033999999276
+        },
+        "void ninfer::models::inkling2::kernels::<unnamed>::attention_kernel<(int)1>(ninfer::models::inkling2::kernels::AttentionArgs)": {
+          "calls": 6144,
+          "gpu_ms": 127.98224200000128
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::residual_kernel(ninfer::models::inkling2::kernels::ResidualArgs)": {
+          "calls": 480,
+          "gpu_ms": 92.99327999999993
+        },
+        "void mul_mat_q<(ggml_type)8, (int)128, (bool)0, (ggml_prec)30, float, (bool)0, (int)0>(const char *, const int *, const int *, const int *, T5 *, float *, const float *, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3, float *, int)": {
+          "calls": 995,
+          "gpu_ms": 89.21548999999987
+        },
+        "void ninfer::ops::gguf::detail::vec::kernel<(ggml_type)14, (int)1, (bool)0, (int)0, (bool)1>(ninfer::ops::gguf::detail::VecArgs)": {
+          "calls": 2689,
+          "gpu_ms": 68.51033699999971
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::mix_split_rows_kernel(ninfer::models::inkling2::kernels::MixArgs, bool)": {
+          "calls": 21504,
+          "gpu_ms": 62.19458499999485
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::control_apply_kernel(ninfer::models::inkling2::kernels::ControlApply)": {
+          "calls": 6384,
+          "gpu_ms": 59.67039800000305
+        },
+        "void ninfer::ops::gguf::detail::moe_mul_mat_q<(ggml_type)40, (int)32, (int)0>(const void *const *, const int *, const int *, const int *, const int *, const int *, float *, uint3, int, int, int)": {
+          "calls": 88,
+          "gpu_ms": 51.360627999999984
+        },
+        "ninfer::models::inkling2::kernels::<unnamed>::situ_rows_kernel(const float *, long, int, const float *, float, float, __nv_bfloat16 *)": {
+          "calls": 6384,
+          "gpu_ms": 46.95326699999909
+        }
+      }
+    }
+  }
+}

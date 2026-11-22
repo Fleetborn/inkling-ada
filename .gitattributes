@@ -1,0 +1,2 @@
+patches/*.patch text eol=lf
+serve.sh text eol=lf
