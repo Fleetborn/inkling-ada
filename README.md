@@ -10,11 +10,22 @@ Inkling Ada is an open-source experiment in serving Thinking Machines’ [Inklin
 
 ### One-shot agent deployment
 
-Use the [Inkling Ada deploy skill](.agents/skills/inkling-ada-deploy/SKILL.md) from a checkout. It prepares the pinned SM89 build and model, starts the loopback server, and verifies a completed reply.
+The [Inkling Ada deploy skill](.agents/skills/inkling-ada-deploy/SKILL.md) prepares the pinned SM89 build and model, starts the loopback server, and verifies a completed reply.
+
+Codex discovers the skill from this checkout. To install a personal copy for use from another workspace, run these commands in the environment where your agent runs.
+
+```bash
+git clone https://github.com/Fleetborn/inkling-ada.git
+cd inkling-ada
+mkdir -p "$HOME/.agents/skills"
+cp -R .agents/skills/inkling-ada-deploy "$HOME/.agents/skills/"
+```
+
+If you already cloned the repo, run the last two commands from its root. For another agent, copy the [entire skill folder](.agents/skills/inkling-ada-deploy) into that agent's skills directory. Include `SKILL.md`, `agents/`, `references/`, and `scripts/`.
+
+Then give your agent one request.
 
 > Use `$inkling-ada-deploy` to start Inkling 2 Mini on my Linux RTX 4090 and verify a completed reply.
-
-To use it elsewhere, copy the entire [`.agents/skills/inkling-ada-deploy` folder](.agents/skills/inkling-ada-deploy) into your agent's skills directory. Include `references/` and `scripts/` so the build instructions and launcher travel with the skill. Codex discovers project skills from a checkout and uses `~/.agents/skills/` for a personal copy.
 
 ### Manual setup
 
