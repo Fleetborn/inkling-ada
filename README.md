@@ -22,7 +22,7 @@ Run the four completed-answer fixtures in a second terminal.
 python3 benchmark_completed.py 8080 1
 ```
 
-The script binds to loopback, keeps experts on the GPU, and uses a 16,384-token context, FP16 KV, and one active sequence. Add `8080 dspark` as the final arguments to enable speculative decoding. The commands above run the stock release. For the patched binary and matched scalar baseline, use the [pinned SM89 build instructions](docs/sm89-tensor-qk.md#apply-and-reproduce).
+The `serve.sh` launcher binds the server to loopback, keeps experts on the GPU, and uses a 16,384-token context, FP16 KV, and one active sequence. Append `8080 dspark` to the `serve.sh` command to enable speculative decoding. The commands above run the stock release. For the patched binary and matched scalar baseline, use the [pinned SM89 build instructions](docs/sm89-tensor-qk.md#apply-and-reproduce).
 
 ## RTX 4090 benchmarks
 
@@ -49,7 +49,7 @@ The longer context sweep ran one correct completed retrieval request per point. 
 | 31,659 | 10.218 s | 35.011 s |
 | 64,059 | 26.024 s | 86.232 s |
 
-At a verified 307,459-token prompt, Ada allocated a 327,680-token MXFP8 KV cache and prefilled about 141,000 tokens before the 152-second cutoff. An initial harness error consumed 59 seconds before the dedicated retry. Strata was limited by its 286,912-token KV cap. The 307K experiment recorded partial prefill and a capacity limit. [Context sweep data](results/rtx4090-context-sweep.json)
+At a verified 307,459-token prompt, Ada allocated a 327,680-token MXFP8 KV cache and prefilled about 141,000 tokens before the 152-second cutoff. The recorded first attempt exited after 59 seconds because of a harness error. Strata was limited by its 286,912-token KV cap. The 307K experiment recorded partial prefill and a capacity limit. [Context sweep data](results/rtx4090-context-sweep.json)
 
 In a separate matched-weights experiment, the tensor QK patch reduced median completion time from 3.010 to 2.796 seconds on the 8,459-token fixture. [Experiment and numerical checks](docs/sm89-tensor-qk.md)
 

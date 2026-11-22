@@ -16,7 +16,7 @@ The benchmark sends a READY smoke prompt and runs three single-stream requests a
 
 ## RTX 4090 results
 
-Measured on the benchmark host on November 22, 2026. Rates and latencies are medians of three requests per engine and prompt length. Peak VRAM is the highest sample across both lengths, taken every 500 ms. [Per-request data](../results/bm04-2026-11-22.json)
+Measured on the benchmark host on November 22, 2026. Rates and latencies are medians of three requests per engine and prompt length. Peak VRAM is the highest sample across both lengths, taken every 500 ms. [Per-request data](../results/rtx4090-2026-11-22.json)
 
 | Engine | Prompt tokens | Prefill tok/s | Decode tok/s | First token | Total time | Peak VRAM |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
