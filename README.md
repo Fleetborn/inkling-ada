@@ -49,6 +49,8 @@ Request text and UD-IQ4_XS weight blocks matched across engines. Their template 
 
 ## Design references
 
+[Ada prefill experiment](docs/sm89-prefill-attention.md) profiles Inkling on bm04 and compares a wider full-attention tile on completed answers. The results favor the existing 8-row route and identify the tensor-core score product as the next candidate.
+
 Inkling evaluates 24 weight layers in 48 visits. The 12 middle layers run three times and share weights, with separate KV and short-convolution state per visit. Keeping the quantized experts on the GPU removes expert transfers from the short-context benchmark. Quantized KV and expert paging are candidates for longer contexts once measurements show which resource is limiting. [Inkling architecture in vLLM](https://vllm-project.github.io/2026/11/20/inkling2-mini.html)
 
 [Strata](https://github.com/Niko1221/Strata) provides a reference for host and GPU expert placement. [Basalt](https://github.com/jesdga95/basalt/blob/main/docs/models/inkling2.md) provides a reference for attention with learned relative bias, per-visit cache sizing, and adaptive DSpark windows. Basalt’s implementation targets Blackwell. Any Ada kernel work should first be compared with the existing NInfer path on the same weights and prompts.
