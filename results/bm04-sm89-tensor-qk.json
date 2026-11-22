@@ -1,0 +1,1420 @@
+{
+  "hardware": "bm04 Linux, RTX 4090 SM89, driver 595.99.02, CUDA Toolkit 12.9.86",
+  "build": "NInfer-all 18029c8e0ce2555bb499e04be24d7a4e9c12a5bc, Release, SM89-only",
+  "model_sha256": "a4a1bbfbdc1150cecc9df2bc12ae87c076330bff81579e243e7875115329bb54",
+  "binary_sha256": {
+    "baseline": "5385a9a6c2cd613580d52fab21bb1224e6bd85550452ddfe9b3e657fb3cdb6e3",
+    "candidate": "a37d390c9aeb1da0720d3d1c19ca9e4ab627c4e2baa14d06ac5e97aca886fe63"
+  },
+  "order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "sampled_peak_gpu_mib": 18078,
+  "sampled_peak_gpu_temperature_c": 88,
+  "checks": {
+    "arithmetic": {
+      "matching_pairs": {
+        "prompt_sha256": 4,
+        "answer_sha256": 4,
+        "prompt_tokens": 4,
+        "completion_tokens": 4
+      },
+      "normal_stops": 8,
+      "correct_fixture_answers": 8
+    },
+    "prose": {
+      "matching_pairs": {
+        "prompt_sha256": 4,
+        "answer_sha256": 0,
+        "prompt_tokens": 4,
+        "completion_tokens": 0
+      },
+      "normal_stops": 8,
+      "correct_fixture_answers": 8
+    },
+    "inventory-105": {
+      "matching_pairs": {
+        "prompt_sha256": 4,
+        "answer_sha256": 4,
+        "prompt_tokens": 4,
+        "completion_tokens": 1
+      },
+      "normal_stops": 8,
+      "correct_fixture_answers": 8
+    },
+    "inventory-420": {
+      "matching_pairs": {
+        "prompt_sha256": 4,
+        "answer_sha256": 4,
+        "prompt_tokens": 4,
+        "completion_tokens": 2
+      },
+      "normal_stops": 8,
+      "correct_fixture_answers": 8
+    }
+  },
+  "completed_answer_medians": {
+    "arithmetic": {
+      "baseline": {
+        "prompt_tokens": 30.0,
+        "completion_tokens": 54.0,
+        "first_token_s": 0.054190809998544864,
+        "first_visible_s": 0.4048632295016432,
+        "elapsed_s": 0.41933110750687774,
+        "prefill_tok_s": 762.7930975413753,
+        "decode_tok_s": 139.6922705942615
+      },
+      "candidate": {
+        "prompt_tokens": 30.0,
+        "completion_tokens": 54.0,
+        "first_token_s": 0.054181633502594195,
+        "first_visible_s": 0.4051493474980816,
+        "elapsed_s": 0.419614617494517,
+        "prefill_tok_s": 763.0694123805679,
+        "decode_tok_s": 139.7380320387038
+      },
+      "paired_completion_improvement_percent": -0.02307084722569881
+    },
+    "prose": {
+      "baseline": {
+        "prompt_tokens": 52.0,
+        "completion_tokens": 306.5,
+        "first_token_s": 0.06347666650253814,
+        "first_visible_s": 1.699460549003561,
+        "elapsed_s": 2.256803664495237,
+        "prefill_tok_s": 1070.7058180293911,
+        "decode_tok_s": 138.41337226053804
+      },
+      "candidate": {
+        "prompt_tokens": 52.0,
+        "completion_tokens": 312.5,
+        "first_token_s": 0.06341969198547304,
+        "first_visible_s": 1.717166244488908,
+        "elapsed_s": 2.2975672469910933,
+        "prefill_tok_s": 1072.3001000491986,
+        "decode_tok_s": 138.5421749540507
+      },
+      "paired_completion_improvement_percent": -2.102115734222456
+    },
+    "inventory-105": {
+      "baseline": {
+        "prompt_tokens": 2159.0,
+        "completion_tokens": 120.0,
+        "first_token_s": 0.4926748314901488,
+        "first_visible_s": 1.2676257955026813,
+        "elapsed_s": 1.3905539685074473,
+        "prefill_tok_s": 4533.2727579800785,
+        "decode_tok_s": 130.30782477948168
+      },
+      "candidate": {
+        "prompt_tokens": 2159.0,
+        "completion_tokens": 121.0,
+        "first_token_s": 0.476441770006204,
+        "first_visible_s": 1.2584097450016998,
+        "elapsed_s": 1.3812158335058484,
+        "prefill_tok_s": 4693.592036827022,
+        "decode_tok_s": 130.36617572895324
+      },
+      "paired_completion_improvement_percent": 0.6630790510424859
+    },
+    "inventory-420": {
+      "baseline": {
+        "prompt_tokens": 8459.0,
+        "completion_tokens": 119.0,
+        "first_token_s": 2.0843075815064367,
+        "first_visible_s": 2.8820093315152917,
+        "elapsed_s": 3.009552485018503,
+        "prefill_tok_s": 4094.0681926730913,
+        "decode_tok_s": 125.39812239787594
+      },
+      "candidate": {
+        "prompt_tokens": 8459.0,
+        "completion_tokens": 121.5,
+        "first_token_s": 1.852871339491685,
+        "first_visible_s": 2.6687030984903686,
+        "elapsed_s": 2.796191039000405,
+        "prefill_tok_s": 4610.7525691233195,
+        "decode_tok_s": 125.47032061764048
+      },
+      "paired_completion_improvement_percent": 6.9734064580856305
+    }
+  },
+  "pp8448_profiles": {
+    "baseline": {
+      "attention_kernel_gpu_ms": 1001.476798,
+      "full_attention_gpu_ms": 447.510538,
+      "full_attention_calls": 40,
+      "tensor_qk_calls": 0,
+      "full_attention_block_threads": [
+        256
+      ],
+      "registers_per_thread": [
+        96
+      ],
+      "local_memory_bytes_per_thread": [
+        0
+      ],
+      "static_shared_bytes": [
+        10240
+      ],
+      "ninfer_bench": {
+        "schema_version": 18,
+        "artifact_type": "ninfer_bench_report",
+        "tool": "ninfer_bench",
+        "command": "/home/syngular/bench-inkling-20261122/sm89-tc-ab/baseline/ninfer_bench --weights /home/syngular/bench-inkling-20261122/Inkling-2-Mini-UD-IQ4_XS.ninfer --corpus /home/syngular/bench-inkling-20261122/ninfer-src/bench/fixtures/bench_corpus.ids --kv-dtype fp16 --expert-residency device --max-ctx 16384 --warmup 1 -r 1 --profile-measured -p 8448 -o json --output-file /home/syngular/bench-inkling-20261122/sm89-tc-ab/baseline-pp8448.json",
+        "environment": {
+          "gpu_name": "NVIDIA GeForce RTX 4090",
+          "cuda_runtime_version": "12.9",
+          "cuda_driver_version": "13.2",
+          "device_id": 0
+        },
+        "artifact": {
+          "path": "/home/syngular/bench-inkling-20261122/Inkling-2-Mini-UD-IQ4_XS.ninfer",
+          "file_size_bytes": 16494910976
+        },
+        "load": {
+          "architecture": "Inkling2ForCausalLM",
+          "name": "Inkling-2-Mini-UD-IQ4_XS",
+          "formats": [
+            "fp32",
+            "gguf_iq4_nl",
+            "gguf_iq4_xs",
+            "gguf_nvfp4",
+            "gguf_q4_k",
+            "gguf_q5_0",
+            "gguf_q5_k",
+            "gguf_q6_k",
+            "gguf_q8_0"
+          ],
+          "prefill_signature": "inkling2",
+          "load_seconds": 2.828820188,
+          "upload_seconds": 2.227993936,
+          "artifact_bytes_read": 15751811935,
+          "host_to_device_bytes": 15725610368,
+          "peak_staging_bytes": 536870912,
+          "device_object_count": 716,
+          "host_object_count": 4
+        },
+        "memory": {
+          "device": 0,
+          "max_context": 16384,
+          "kv_capacity_mode": "explicit",
+          "kv_capacity": 16384,
+          "kv_capacity_page_groups": 0,
+          "kv_capacity_max_page_groups": 0,
+          "kv_cache": "fp16",
+          "weights": {
+            "capacity_bytes": 15725647872,
+            "used_bytes": 15725647872,
+            "peak_used_bytes": 15725647872
+          },
+          "sequence": {
+            "capacity_bytes": 771751936,
+            "used_bytes": 771751936,
+            "peak_used_bytes": 771751936
+          },
+          "workspace": {
+            "capacity_bytes": 1317092864,
+            "used_bytes": 1317092864,
+            "peak_used_bytes": 1317092864
+          },
+          "vision_workspace": null,
+          "minimum_runtime_reservation_bytes": 0,
+          "kv_capacity_increment_bytes": 0,
+          "runtime_reservation_bytes": 2088844800,
+          "available_after_weights_bytes": 9049669632,
+          "available_after_startup_bytes": 6646333440,
+          "kv_capacity_headroom_bytes": 0,
+          "planned_slack_bytes": 0,
+          "cuda_graph_allowance_bytes": 0,
+          "kv_payload_bytes": 771751936
+        },
+        "config": {
+          "max_context": 16384,
+          "rope_yarn_factor": 1,
+          "prefill_chunk": 0,
+          "fast_prefill_kernel": false,
+          "kv_cache": "fp16",
+          "expert_residency": "device",
+          "embedding_residency": "device",
+          "expert_cache_bytes": 0,
+          "expert_routes": 0,
+          "expert_hits": 0,
+          "expert_admissions": 0,
+          "expert_transferred_bytes": 0,
+          "speculative_backend": "none",
+          "draft_tokens": 0,
+          "ngram_draft_tokens": 0,
+          "ngram_min_match": 12,
+          "proposal_head": "auto",
+          "use_cuda_graph": true,
+          "decode_path": "cuda_graph",
+          "decode_graph_prime": {
+            "primed": false,
+            "output_tokens": 0
+          },
+          "repetitions": 1,
+          "warmup": 1,
+          "corpus_path": "/home/syngular/bench-inkling-20261122/ninfer-src/bench/fixtures/bench_corpus.ids",
+          "corpus_tokens": 65536
+        },
+        "tests": [
+          {
+            "label": "pp8448",
+            "kind": "pp",
+            "n_prompt": 8448,
+            "n_gen": 0,
+            "requested_output_tokens": 1,
+            "prefill_tok_s_mean": 4228.438035,
+            "prefill_tok_s_stddev": 0,
+            "decode_output_tok_s_mean": null,
+            "decode_output_tok_s_stddev": null,
+            "decode_engine_tok_s_mean": null,
+            "decode_engine_tok_s_stddev": null,
+            "prepare_seconds_mean": 2.579e-05,
+            "prepare_seconds_stddev": 0,
+            "prefill_seconds_mean": 1.997900863,
+            "prefill_seconds_stddev": 0,
+            "decode_seconds_mean": null,
+            "decode_seconds_stddev": null,
+            "total_seconds_mean": 1.997991234,
+            "total_seconds_stddev": 0,
+            "workspace_peak_bytes": 0,
+            "workspace_allocator_peak_bytes": 1317092864,
+            "speculative": {
+              "backend": "none",
+              "enabled": false,
+              "draft_window": 0,
+              "rounds": 0,
+              "drafted_tokens": 0,
+              "accepted_tokens": 0,
+              "fallback_steps": 0,
+              "ngram_rounds": 0,
+              "ngram_drafted_tokens": 0,
+              "ngram_accepted_tokens": 0,
+              "acceptance_rate": null,
+              "acceptance_length": null,
+              "accepted_per_position": []
+            },
+            "reps": [
+              {
+                "generated_output_tokens": 1,
+                "decode_output_tokens": null,
+                "decode_engine_tokens": null,
+                "timings": {
+                  "prepare_seconds": 2.579e-05,
+                  "vision_seconds": 0,
+                  "prefill_seconds": 1.997900863,
+                  "decode_seconds": 3.8451e-05,
+                  "total_seconds": 1.997991234
+                },
+                "speculative": {
+                  "backend": "none",
+                  "enabled": false,
+                  "draft_window": 0,
+                  "rounds": 0,
+                  "drafted_tokens": 0,
+                  "accepted_tokens": 0,
+                  "fallback_steps": 0,
+                  "ngram_rounds": 0,
+                  "ngram_drafted_tokens": 0,
+                  "ngram_accepted_tokens": 0,
+                  "acceptance_rate": null,
+                  "acceptance_length": null,
+                  "accepted_per_position": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "candidate": {
+      "attention_kernel_gpu_ms": 785.181655,
+      "full_attention_gpu_ms": 232.411017,
+      "full_attention_calls": 40,
+      "tensor_qk_calls": 40,
+      "full_attention_block_threads": [
+        256
+      ],
+      "registers_per_thread": [
+        80
+      ],
+      "local_memory_bytes_per_thread": [
+        0
+      ],
+      "static_shared_bytes": [
+        20480
+      ],
+      "ninfer_bench": {
+        "schema_version": 18,
+        "artifact_type": "ninfer_bench_report",
+        "tool": "ninfer_bench",
+        "command": "/home/syngular/bench-inkling-20261122/sm89-tc-ab/candidate/ninfer_bench --weights /home/syngular/bench-inkling-20261122/Inkling-2-Mini-UD-IQ4_XS.ninfer --corpus /home/syngular/bench-inkling-20261122/ninfer-src/bench/fixtures/bench_corpus.ids --kv-dtype fp16 --expert-residency device --max-ctx 16384 --warmup 1 -r 1 --profile-measured -p 8448 -o json --output-file /home/syngular/bench-inkling-20261122/sm89-tc-ab/candidate-pp8448.json",
+        "environment": {
+          "gpu_name": "NVIDIA GeForce RTX 4090",
+          "cuda_runtime_version": "12.9",
+          "cuda_driver_version": "13.2",
+          "device_id": 0
+        },
+        "artifact": {
+          "path": "/home/syngular/bench-inkling-20261122/Inkling-2-Mini-UD-IQ4_XS.ninfer",
+          "file_size_bytes": 16494910976
+        },
+        "load": {
+          "architecture": "Inkling2ForCausalLM",
+          "name": "Inkling-2-Mini-UD-IQ4_XS",
+          "formats": [
+            "fp32",
+            "gguf_iq4_nl",
+            "gguf_iq4_xs",
+            "gguf_nvfp4",
+            "gguf_q4_k",
+            "gguf_q5_0",
+            "gguf_q5_k",
+            "gguf_q6_k",
+            "gguf_q8_0"
+          ],
+          "prefill_signature": "inkling2",
+          "load_seconds": 2.83495297,
+          "upload_seconds": 2.228302948,
+          "artifact_bytes_read": 15751811935,
+          "host_to_device_bytes": 15725610368,
+          "peak_staging_bytes": 536870912,
+          "device_object_count": 716,
+          "host_object_count": 4
+        },
+        "memory": {
+          "device": 0,
+          "max_context": 16384,
+          "kv_capacity_mode": "explicit",
+          "kv_capacity": 16384,
+          "kv_capacity_page_groups": 0,
+          "kv_capacity_max_page_groups": 0,
+          "kv_cache": "fp16",
+          "weights": {
+            "capacity_bytes": 15725647872,
+            "used_bytes": 15725647872,
+            "peak_used_bytes": 15725647872
+          },
+          "sequence": {
+            "capacity_bytes": 771751936,
+            "used_bytes": 771751936,
+            "peak_used_bytes": 771751936
+          },
+          "workspace": {
+            "capacity_bytes": 1317092864,
+            "used_bytes": 1317092864,
+            "peak_used_bytes": 1317092864
+          },
+          "vision_workspace": null,
+          "minimum_runtime_reservation_bytes": 0,
+          "kv_capacity_increment_bytes": 0,
+          "runtime_reservation_bytes": 2088844800,
+          "available_after_weights_bytes": 9049669632,
+          "available_after_startup_bytes": 6646333440,
+          "kv_capacity_headroom_bytes": 0,
+          "planned_slack_bytes": 0,
+          "cuda_graph_allowance_bytes": 0,
+          "kv_payload_bytes": 771751936
+        },
+        "config": {
+          "max_context": 16384,
+          "rope_yarn_factor": 1,
+          "prefill_chunk": 0,
+          "fast_prefill_kernel": false,
+          "kv_cache": "fp16",
+          "expert_residency": "device",
+          "embedding_residency": "device",
+          "expert_cache_bytes": 0,
+          "expert_routes": 0,
+          "expert_hits": 0,
+          "expert_admissions": 0,
+          "expert_transferred_bytes": 0,
+          "speculative_backend": "none",
+          "draft_tokens": 0,
+          "ngram_draft_tokens": 0,
+          "ngram_min_match": 12,
+          "proposal_head": "auto",
+          "use_cuda_graph": true,
+          "decode_path": "cuda_graph",
+          "decode_graph_prime": {
+            "primed": false,
+            "output_tokens": 0
+          },
+          "repetitions": 1,
+          "warmup": 1,
+          "corpus_path": "/home/syngular/bench-inkling-20261122/ninfer-src/bench/fixtures/bench_corpus.ids",
+          "corpus_tokens": 65536
+        },
+        "tests": [
+          {
+            "label": "pp8448",
+            "kind": "pp",
+            "n_prompt": 8448,
+            "n_gen": 0,
+            "requested_output_tokens": 1,
+            "prefill_tok_s_mean": 4743.897363,
+            "prefill_tok_s_stddev": 0,
+            "decode_output_tok_s_mean": null,
+            "decode_output_tok_s_stddev": null,
+            "decode_engine_tok_s_mean": null,
+            "decode_engine_tok_s_stddev": null,
+            "prepare_seconds_mean": 4.195e-05,
+            "prepare_seconds_stddev": 0,
+            "prefill_seconds_mean": 1.780814245,
+            "prefill_seconds_stddev": 0,
+            "decode_seconds_mean": null,
+            "decode_seconds_stddev": null,
+            "total_seconds_mean": 1.780929786,
+            "total_seconds_stddev": 0,
+            "workspace_peak_bytes": 0,
+            "workspace_allocator_peak_bytes": 1317092864,
+            "speculative": {
+              "backend": "none",
+              "enabled": false,
+              "draft_window": 0,
+              "rounds": 0,
+              "drafted_tokens": 0,
+              "accepted_tokens": 0,
+              "fallback_steps": 0,
+              "ngram_rounds": 0,
+              "ngram_drafted_tokens": 0,
+              "ngram_accepted_tokens": 0,
+              "acceptance_rate": null,
+              "acceptance_length": null,
+              "accepted_per_position": []
+            },
+            "reps": [
+              {
+                "generated_output_tokens": 1,
+                "decode_output_tokens": null,
+                "decode_engine_tokens": null,
+                "timings": {
+                  "prepare_seconds": 4.195e-05,
+                  "vision_seconds": 0,
+                  "prefill_seconds": 1.780814245,
+                  "decode_seconds": 4.1471e-05,
+                  "total_seconds": 1.780929786
+                },
+                "speculative": {
+                  "backend": "none",
+                  "enabled": false,
+                  "draft_window": 0,
+                  "rounds": 0,
+                  "drafted_tokens": 0,
+                  "accepted_tokens": 0,
+                  "fallback_steps": 0,
+                  "ngram_rounds": 0,
+                  "ngram_drafted_tokens": 0,
+                  "ngram_accepted_tokens": 0,
+                  "acceptance_rate": null,
+                  "acceptance_length": null,
+                  "accepted_per_position": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requests": {
+    "baseline": [
+      {
+        "case": "arithmetic",
+        "run": 1,
+        "prompt_sha256": "649f5d19952ab9a72c9f53326c9a551f8af666a1b449485f13922e3ed71f29c1",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.0541938139940612,
+        "ttfa_s": 0.4041137850144878,
+        "elapsed_s": 0.4185246340057347,
+        "decode_tok_s_est": 151.46320413048423,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 378.551357,
+          "predicted_n": 54,
+          "predicted_per_second": 140.00742308790615,
+          "predicted_per_token_ms": 7.142478433962264,
+          "prompt_ms": 39.337889000000004,
+          "prompt_n": 30,
+          "prompt_per_second": 762.6235357977648,
+          "prompt_per_token_ms": 1.3112629666666669
+        }
+      },
+      {
+        "case": "prose",
+        "run": 1,
+        "prompt_sha256": "5cd692b8b2cf3f3efd3603b4cbe5b4749aab578dd4b8fc43d54e9481765fea9b",
+        "answer_sha256": "adcb24084b73ec7ec69bcdb4f11b1d3f2a628b957c146516d6167dbaa179f2b8",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive, which determines how early replenishment must be triggered. It should also record a reorder threshold so the team knows the exact stock level at which a new order is needed. Together, lead time and a reorder threshold help prevent shortages, reduce excess inventory, and make purchasing decisions more predictable.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 336,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06331091199535877,
+        "ttfa_s": 1.863355750014307,
+        "elapsed_s": 2.4695688690117095,
+        "decode_tok_s_est": 140.0772061656578,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2420.423393,
+          "predicted_n": 336,
+          "predicted_per_second": 138.40553721668644,
+          "predicted_per_token_ms": 7.225144456716418,
+          "prompt_ms": 48.365206,
+          "prompt_n": 52,
+          "prompt_per_second": 1075.1530759529899,
+          "prompt_per_token_ms": 0.9301001153846153
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 1,
+        "prompt_sha256": "6e00bfc23efdcf7d3493bc2f52a76404672b11d9f0f471ab2ab634ba0c5b3ce1",
+        "answer_sha256": "2f17e8adabe0169b1017c45ca7d370f3d89c00dc279c9a40d98aa7b159266579",
+        "answer": "{\"stock\":36,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4924748500052374,
+        "ttfa_s": 1.259594700008165,
+        "elapsed_s": 1.3824919270118698,
+        "decode_tok_s_est": 134.92776543553,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 905.274786,
+          "predicted_n": 119,
+          "predicted_per_second": 130.34716289999488,
+          "predicted_per_token_ms": 7.671820220338983,
+          "prompt_ms": 475.83628300000004,
+          "prompt_n": 2159,
+          "prompt_per_second": 4537.274850896563,
+          "prompt_per_token_ms": 0.2203966109309866
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 1,
+        "prompt_sha256": "cc406658dbb8438f64d0386694bfdc1f27e219cee7bf5088a3fe42250d3d1f45",
+        "answer_sha256": "b67616514134c46ca79c9e703d4796b43e6c07fb9a60f07a57a786dcb214d1c0",
+        "answer": "{\"stock\":44,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 2.060438977990998,
+        "ttfa_s": 2.8736001689976547,
+        "elapsed_s": 3.001183978980407,
+        "decode_tok_s_est": 129.77707886080387,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 956.734736,
+          "predicted_n": 121,
+          "predicted_per_second": 125.42661563821385,
+          "predicted_per_token_ms": 7.972789466666667,
+          "prompt_ms": 2042.1016019999997,
+          "prompt_n": 8459,
+          "prompt_per_second": 4142.301240895849,
+          "prompt_per_token_ms": 0.24141170374748785
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 2,
+        "prompt_sha256": "514a60feb64abdc1be5458f711b017f4429c1f662ad41a49437eb73290c3de86",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05425780499354005,
+        "ttfa_s": 0.4053982309997082,
+        "elapsed_s": 0.41982939501758665,
+        "decode_tok_s_est": 150.93676510795427,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 379.771392,
+          "predicted_n": 54,
+          "predicted_per_second": 139.55764208800647,
+          "predicted_per_token_ms": 7.16549796226415,
+          "prompt_ms": 39.320404,
+          "prompt_n": 30,
+          "prompt_per_second": 762.9626592849859,
+          "prompt_per_token_ms": 1.3106801333333336
+        }
+      },
+      {
+        "case": "prose",
+        "run": 2,
+        "prompt_sha256": "1297441c4f1294f368cc9e5c5d718cc7845330f0875a2b8c65cf72cfb52110ac",
+        "answer_sha256": "1ea8a93504546c6db515c01d7cb42873433eb3397b652aeb452d4f351a498529",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive after it is placed. It should also record a reorder threshold so the team knows when inventory is low enough to trigger a new purchase. Together, these figures help prevent stockouts, keep shelves stocked, and make replenishment decisions timely and predictable.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 302,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06345554298604839,
+        "ttfa_s": 1.6610888440045528,
+        "elapsed_s": 2.2237624450062867,
+        "decode_tok_s_est": 140.28892445251063,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2174.522285,
+          "predicted_n": 302,
+          "predicted_per_second": 138.4212073043896,
+          "predicted_per_token_ms": 7.224326528239203,
+          "prompt_ms": 48.561451,
+          "prompt_n": 52,
+          "prompt_per_second": 1070.8082013447251,
+          "prompt_per_token_ms": 0.9338740576923077
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 2,
+        "prompt_sha256": "55bef9ac22a7892e57a6d313d6d0242d1c19a3a0a44b48d9e7c6998f483a2d8f",
+        "answer_sha256": "005d71423a087e02b181d9ca305319d7ff2ff9696a5ab6db951d7db896141423",
+        "answer": "{\"stock\":37,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4933333289809525,
+        "ttfa_s": 1.2763586119981483,
+        "elapsed_s": 1.3993336429994088,
+        "decode_tok_s_est": 134.7518119068256,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 921.280938,
+          "predicted_n": 121,
+          "predicted_per_second": 130.2534276466274,
+          "predicted_per_token_ms": 7.67734115,
+          "prompt_ms": 476.460195,
+          "prompt_n": 2159,
+          "prompt_per_second": 4531.333409709074,
+          "prompt_per_token_ms": 0.2206855928670681
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 2,
+        "prompt_sha256": "0e6941e78a27401f7137236b120ac580dca395a665ad99bd6b9c5b30efc91620",
+        "answer_sha256": "f72ac7169b72d9329f880fc475cee7c411e535f26ceca204f07b95c61440fa71",
+        "answer": "{\"stock\":45,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 2.081340523000108,
+        "ttfa_s": 2.879059438011609,
+        "elapsed_s": 3.0066703790216707,
+        "decode_tok_s_est": 129.7765473504903,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 941.384188,
+          "predicted_n": 119,
+          "predicted_per_second": 125.34733587430938,
+          "predicted_per_token_ms": 7.977832101694915,
+          "prompt_ms": 2063.609541,
+          "prompt_n": 8459,
+          "prompt_per_second": 4099.128169324548,
+          "prompt_per_token_ms": 0.24395431386688732
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 3,
+        "prompt_sha256": "f7919fdd456c30bbfb3dccbd300e3554d9a5104f79022aebeadf518804098b91",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05399111099541187,
+        "ttfa_s": 0.4044207209954038,
+        "elapsed_s": 0.41883281999616884,
+        "decode_tok_s_est": 151.24292721725547,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 379.040087,
+          "predicted_n": 54,
+          "predicted_per_second": 139.8268991005165,
+          "predicted_per_token_ms": 7.151699754716982,
+          "prompt_ms": 39.241687999999996,
+          "prompt_n": 30,
+          "prompt_per_second": 764.4931074320759,
+          "prompt_per_token_ms": 1.3080562666666666
+        }
+      },
+      {
+        "case": "prose",
+        "run": 3,
+        "prompt_sha256": "10a1c17b57a37fe6af9a5d15e191ce1ff2926ddae57e0cebee1e88f5bd888f79",
+        "answer_sha256": "65a8fa35f173f048aca6b8613e2df221526bb2cc72be35e4d5e7c7eefa6cf425",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive after it is placed. It should also record a reorder threshold so the team knows when inventory is low enough to trigger a new purchase. Together, lead time and reorder threshold help prevent shortages, reduce excess stock, and keep purchasing decisions timely and predictable.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 301,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06349779001902789,
+        "ttfa_s": 1.671989262016723,
+        "elapsed_s": 2.211589181009913,
+        "decode_tok_s_est": 140.62225090064643,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2162.249918,
+          "predicted_n": 301,
+          "predicted_per_second": 138.74436877189882,
+          "predicted_per_token_ms": 7.207499726666667,
+          "prompt_ms": 48.663346000000004,
+          "prompt_n": 52,
+          "prompt_per_second": 1068.5660620213002,
+          "prompt_per_token_ms": 0.935833576923077
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 3,
+        "prompt_sha256": "29ac8c48f271c100e1a888c226c9324d91d5bc048e078a0cd933b9af77b05b67",
+        "answer_sha256": "0358ce13ff38193d1d7b21ee0c6302e53c366616776a5af314e82008ef5bb584",
+        "answer": "{\"stock\":38,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 111,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.49247680499684066,
+        "ttfa_s": 1.1983777309942525,
+        "elapsed_s": 1.3212812170095276,
+        "decode_tok_s_est": 135.24516322027,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 844.0764379999999,
+          "predicted_n": 111,
+          "predicted_per_second": 130.31995095211983,
+          "predicted_per_token_ms": 7.673422163636363,
+          "prompt_ms": 476.052707,
+          "prompt_n": 2159,
+          "prompt_per_second": 4535.212106251083,
+          "prompt_per_token_ms": 0.22049685363594257
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 3,
+        "prompt_sha256": "b29e4bdb869d9c24438c91d90a670951a1e49a854ef582119d5487e833829f47",
+        "answer_sha256": "30edd61d74f2de5d58f5348e0f5f7b040f49be761e57b79946a29c4edcf9379c",
+        "answer": "{\"stock\":46,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 2.0872746400127653,
+        "ttfa_s": 2.8849592250189744,
+        "elapsed_s": 3.012434591015335,
+        "decode_tok_s_est": 129.7968346590975,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 941.1999330000001,
+          "predicted_n": 119,
+          "predicted_per_second": 125.37187462804461,
+          "predicted_per_token_ms": 7.976270618644069,
+          "prompt_ms": 2068.716802,
+          "prompt_n": 8459,
+          "prompt_per_second": 4089.0082160216343,
+          "prompt_per_token_ms": 0.24455808038775267
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 4,
+        "prompt_sha256": "0ffe43fce75e404e174f762e65bcaaba954a529ee91a000cbaaf42b91a91fc16",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05418780600302853,
+        "ttfa_s": 0.4053057380078826,
+        "elapsed_s": 0.41987033499754034,
+        "decode_tok_s_est": 150.9464347131872,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 379.773521,
+          "predicted_n": 54,
+          "predicted_per_second": 139.5568597316715,
+          "predicted_per_token_ms": 7.165538132075472,
+          "prompt_ms": 39.403006999999995,
+          "prompt_n": 30,
+          "prompt_per_second": 761.3632127111518,
+          "prompt_per_token_ms": 1.3134335666666666
+        }
+      },
+      {
+        "case": "prose",
+        "run": 4,
+        "prompt_sha256": "86c32ffe0723efd02d940dbe7bf1d4c3cc569f7c73854f3d63e78bdbed7a758c",
+        "answer_sha256": "b611e8015f91596ac2660a7d4978e64ee681fbeaffb7d6d6f4fce3373c218193",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive after it is placed. It should also record the reorder threshold so the team knows when inventory is low enough to trigger a new purchase. Together, lead time and reorder threshold help prevent stockouts, reduce excess inventory, and keep replenishment decisions timely and consistent.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 311,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06358373997500166,
+        "ttfa_s": 1.7269318359903991,
+        "elapsed_s": 2.2898448839841876,
+        "decode_tok_s_est": 140.1744026478661,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2240.495266,
+          "predicted_n": 311,
+          "predicted_per_second": 138.36226512250082,
+          "predicted_per_token_ms": 7.227404083870967,
+          "prompt_ms": 48.570739,
+          "prompt_n": 52,
+          "prompt_per_second": 1070.603434714057,
+          "prompt_per_token_ms": 0.9340526730769232
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 4,
+        "prompt_sha256": "6b9a3171e2a223029038808ddb6759cfac4fc0a3dbdd9da31686e1e0c265e1fe",
+        "answer_sha256": "e43d5688ffcc4662c3ec2d0737b65d58da1f83d22cd142cca5f700a8418c1be9",
+        "answer": "{\"stock\":39,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4928728579834569,
+        "ttfa_s": 1.2756568909971975,
+        "elapsed_s": 1.3986160100030247,
+        "decode_tok_s_est": 134.79525708988982,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 920.9820530000001,
+          "predicted_n": 121,
+          "predicted_per_second": 130.29569860684353,
+          "predicted_per_token_ms": 7.674850441666667,
+          "prompt_ms": 476.501736,
+          "prompt_n": 2159,
+          "prompt_per_second": 4530.938372069226,
+          "prompt_per_token_ms": 0.22070483371931449
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 4,
+        "prompt_sha256": "cc06b6a4fd5a98f801216788acf2a70906bacbe19553e4a8de506ce49828d520",
+        "answer_sha256": "d42cc0f735cacd85b40c6b1e706c8a317ff08128939bcbea29deab7a9987e23a",
+        "answer": "{\"stock\":47,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 2.0983859310217667,
+        "ttfa_s": 2.8956286850152537,
+        "elapsed_s": 3.0231646330212243,
+        "decode_tok_s_est": 129.85442686157634,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 940.806,
+          "predicted_n": 119,
+          "predicted_per_second": 125.42437016770725,
+          "predicted_per_token_ms": 7.97293220338983,
+          "prompt_ms": 2080.4417540000004,
+          "prompt_n": 8459,
+          "prompt_per_second": 4065.963386735603,
+          "prompt_per_token_ms": 0.24594417236079918
+        }
+      }
+    ],
+    "candidate": [
+      {
+        "case": "arithmetic",
+        "run": 1,
+        "prompt_sha256": "649f5d19952ab9a72c9f53326c9a551f8af666a1b449485f13922e3ed71f29c1",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05406429900904186,
+        "ttfa_s": 0.40432170798885636,
+        "elapsed_s": 0.41874321398790926,
+        "decode_tok_s_est": 151.3172844919161,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 378.859548,
+          "predicted_n": 54,
+          "predicted_per_second": 139.8935312038117,
+          "predicted_per_token_ms": 7.148293358490567,
+          "prompt_ms": 39.205218,
+          "prompt_n": 30,
+          "prompt_per_second": 765.2042643915408,
+          "prompt_per_token_ms": 1.3068406000000001
+        }
+      },
+      {
+        "case": "prose",
+        "run": 1,
+        "prompt_sha256": "5cd692b8b2cf3f3efd3603b4cbe5b4749aab578dd4b8fc43d54e9481765fea9b",
+        "answer_sha256": "30cc0d05938dcbd8624785719a41f4c3721fc3a274bd65d3ecc9c1880103db1b",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive, which determines when replenishment must be placed. It should also record a reorder threshold so the team knows the inventory level at which a new order is triggered. Together, lead time and reorder threshold help prevent stockouts, reduce excess inventory, and make purchasing decisions more timely and reliable.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 299,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06339902197942138,
+        "ttfa_s": 1.5989293589955196,
+        "elapsed_s": 2.1966851689794566,
+        "decode_tok_s_est": 140.65873721740252,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2147.4915600000004,
+          "predicted_n": 299,
+          "predicted_per_second": 138.7665523584176,
+          "predicted_per_token_ms": 7.206347516778525,
+          "prompt_ms": 48.454860000000004,
+          "prompt_n": 52,
+          "prompt_per_second": 1073.1637652033253,
+          "prompt_per_token_ms": 0.9318242307692308
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 1,
+        "prompt_sha256": "6e00bfc23efdcf7d3493bc2f52a76404672b11d9f0f471ab2ab634ba0c5b3ce1",
+        "answer_sha256": "2f17e8adabe0169b1017c45ca7d370f3d89c00dc279c9a40d98aa7b159266579",
+        "answer": "{\"stock\":36,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4763906130101532,
+        "ttfa_s": 1.2585411760082934,
+        "elapsed_s": 1.3812861900078133,
+        "decode_tok_s_est": 134.91693707297225,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 920.092651,
+          "predicted_n": 121,
+          "predicted_per_second": 130.42164815638768,
+          "predicted_per_token_ms": 7.667438758333334,
+          "prompt_ms": 459.749452,
+          "prompt_n": 2159,
+          "prompt_per_second": 4696.036048782501,
+          "prompt_per_token_ms": 0.21294555442334415
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 1,
+        "prompt_sha256": "cc406658dbb8438f64d0386694bfdc1f27e219cee7bf5088a3fe42250d3d1f45",
+        "answer_sha256": "b67616514134c46ca79c9e703d4796b43e6c07fb9a60f07a57a786dcb214d1c0",
+        "answer": "{\"stock\":44,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 124,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 1.8473401959927287,
+        "ttfa_s": 2.683665257995017,
+        "elapsed_s": 2.8111486170091666,
+        "decode_tok_s_est": 129.78392667455958,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 979.730871,
+          "predicted_n": 124,
+          "predicted_per_second": 125.54468134137217,
+          "predicted_per_token_ms": 7.965291634146341,
+          "prompt_ms": 1829.0259170000002,
+          "prompt_n": 8459,
+          "prompt_per_second": 4624.86612211302,
+          "prompt_per_token_ms": 0.21622247511526188
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 2,
+        "prompt_sha256": "514a60feb64abdc1be5458f711b017f4429c1f662ad41a49437eb73290c3de86",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05421764400671236,
+        "ttfa_s": 0.40536602900829166,
+        "elapsed_s": 0.41980385000351816,
+        "decode_tok_s_est": 150.93334403278442,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 379.822645,
+          "predicted_n": 54,
+          "predicted_per_second": 139.53881027814967,
+          "predicted_per_token_ms": 7.1664650000000005,
+          "prompt_ms": 39.290305999999994,
+          "prompt_n": 30,
+          "prompt_per_second": 763.5471202489491,
+          "prompt_per_token_ms": 1.3096768666666665
+        }
+      },
+      {
+        "case": "prose",
+        "run": 2,
+        "prompt_sha256": "1297441c4f1294f368cc9e5c5d718cc7845330f0875a2b8c65cf72cfb52110ac",
+        "answer_sha256": "9fe7559bbeb8931680e507d63f2dd009ebc6ab36e4dd00b45df27a72348086b9",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive after it is placed, which determines how much inventory must be on hand to cover demand during that window. It should also record the reorder threshold so the team knows the exact stock level at which a new order should be placed, rather than relying on memory or guesswork. Together, lead time and reorder threshold make replenishment predictable, reduce stockouts and excess inventory, and give managers a clear basis for reviewing whether stock levels are adequate.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 390,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.0634403619915247,
+        "ttfa_s": 2.0257989130041096,
+        "elapsed_s": 2.866996980010299,
+        "decode_tok_s_est": 139.48804227380558,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2817.7093050000003,
+          "predicted_n": 390,
+          "predicted_per_second": 138.05540525764064,
+          "predicted_per_token_ms": 7.243468650385605,
+          "prompt_ms": 48.528656000000005,
+          "prompt_n": 52,
+          "prompt_per_second": 1071.531838837655,
+          "prompt_per_token_ms": 0.9332433846153847
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 2,
+        "prompt_sha256": "55bef9ac22a7892e57a6d313d6d0242d1c19a3a0a44b48d9e7c6998f483a2d8f",
+        "answer_sha256": "005d71423a087e02b181d9ca305319d7ff2ff9696a5ab6db951d7db896141423",
+        "answer": "{\"stock\":37,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4764929270022549,
+        "ttfa_s": 1.2591366969863884,
+        "elapsed_s": 1.3819966919836588,
+        "decode_tok_s_est": 134.82768035028843,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 920.720404,
+          "predicted_n": 121,
+          "predicted_per_second": 130.33272585105,
+          "predicted_per_token_ms": 7.6726700333333335,
+          "prompt_ms": 460.228496,
+          "prompt_n": 2159,
+          "prompt_per_second": 4691.148024871542,
+          "prompt_per_token_ms": 0.21316743677628533
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 2,
+        "prompt_sha256": "0e6941e78a27401f7137236b120ac580dca395a665ad99bd6b9c5b30efc91620",
+        "answer_sha256": "f72ac7169b72d9329f880fc475cee7c411e535f26ceca204f07b95c61440fa71",
+        "answer": "{\"stock\":45,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 1.8567023389914539,
+        "ttfa_s": 2.6537409389857203,
+        "elapsed_s": 2.7812334609916434,
+        "decode_tok_s_est": 129.88896334008882,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 940.507867,
+          "predicted_n": 119,
+          "predicted_per_second": 125.464128627007,
+          "predicted_per_token_ms": 7.970405652542373,
+          "prompt_ms": 1838.245295,
+          "prompt_n": 8459,
+          "prompt_per_second": 4601.67096470115,
+          "prompt_per_token_ms": 0.21731236493675374
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 3,
+        "prompt_sha256": "f7919fdd456c30bbfb3dccbd300e3554d9a5104f79022aebeadf518804098b91",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05510308098746464,
+        "ttfa_s": 0.40512422600295395,
+        "elapsed_s": 0.4195896479941439,
+        "decode_tok_s_est": 151.41942352555478,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 378.647877,
+          "predicted_n": 54,
+          "predicted_per_second": 139.97173421363195,
+          "predicted_per_token_ms": 7.144299566037736,
+          "prompt_ms": 40.294544,
+          "prompt_n": 30,
+          "prompt_per_second": 744.5176696874892,
+          "prompt_per_token_ms": 1.3431514666666666
+        }
+      },
+      {
+        "case": "prose",
+        "run": 3,
+        "prompt_sha256": "10a1c17b57a37fe6af9a5d15e191ce1ff2926ddae57e0cebee1e88f5bd888f79",
+        "answer_sha256": "9818b4c455d158dd0104c376ebb712f9d7323527b64ab3c791797b5575b453a3",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive after it is placed. It should also record a reorder threshold so the team knows when inventory is low enough to trigger a new purchase. Together, lead time and a reorder threshold help prevent stockouts, reduce excess inventory, and make replenishment decisions more timely and reliable.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 311,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.0632361920143012,
+        "ttfa_s": 1.7080822249990888,
+        "elapsed_s": 2.28421869999147,
+        "decode_tok_s_est": 140.50742584495248,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2235.178458,
+          "predicted_n": 311,
+          "predicted_per_second": 138.69138676174555,
+          "predicted_per_token_ms": 7.21025309032258,
+          "prompt_ms": 48.500457,
+          "prompt_n": 52,
+          "prompt_per_second": 1072.154845881143,
+          "prompt_per_token_ms": 0.9327010961538461
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 3,
+        "prompt_sha256": "29ac8c48f271c100e1a888c226c9324d91d5bc048e078a0cd933b9af77b05b67",
+        "answer_sha256": "0358ce13ff38193d1d7b21ee0c6302e53c366616776a5af314e82008ef5bb584",
+        "answer": "{\"stock\":38,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 121,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4759449099947233,
+        "ttfa_s": 1.2582783139951061,
+        "elapsed_s": 1.3811454770038836,
+        "decode_tok_s_est": 134.872536937161,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 920.4518069999999,
+          "predicted_n": 121,
+          "predicted_per_second": 130.3707582378618,
+          "predicted_per_token_ms": 7.670431724999999,
+          "prompt_ms": 459.303474,
+          "prompt_n": 2159,
+          "prompt_per_second": 4700.595841781071,
+          "prompt_per_token_ms": 0.21273898749421027
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 3,
+        "prompt_sha256": "b29e4bdb869d9c24438c91d90a670951a1e49a854ef582119d5487e833829f47",
+        "answer_sha256": "30edd61d74f2de5d58f5348e0f5f7b040f49be761e57b79946a29c4edcf9379c",
+        "answer": "{\"stock\":46,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 1.849040339991916,
+        "ttfa_s": 2.646042401000159,
+        "elapsed_s": 2.7735016570077278,
+        "decode_tok_s_est": 129.89625622763137,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 940.415043,
+          "predicted_n": 119,
+          "predicted_per_second": 125.47651260827396,
+          "predicted_per_token_ms": 7.969619008474576,
+          "prompt_ms": 1831.018102,
+          "prompt_n": 8459,
+          "prompt_per_second": 4619.834173545489,
+          "prompt_per_token_ms": 0.216457985813926
+        }
+      },
+      {
+        "case": "arithmetic",
+        "run": 4,
+        "prompt_sha256": "0ffe43fce75e404e174f762e65bcaaba954a529ee91a000cbaaf42b91a91fc16",
+        "answer_sha256": "3949ac1596ec77106a709a618bf5adcb19b77537ce8bcbdf54ff830169cdd084",
+        "answer": "323",
+        "check_passed": true,
+        "prompt_tokens": 30,
+        "completion_tokens": 54,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.05414562299847603,
+        "ttfa_s": 0.4051744689932093,
+        "elapsed_s": 0.4196395869948901,
+        "decode_tok_s_est": 150.98474272053184,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 379.70367,
+          "predicted_n": 54,
+          "predicted_per_second": 139.58253287359588,
+          "predicted_per_token_ms": 7.164220188679245,
+          "prompt_ms": 39.339530999999994,
+          "prompt_n": 30,
+          "prompt_per_second": 762.5917045121867,
+          "prompt_per_token_ms": 1.3113176999999998
+        }
+      },
+      {
+        "case": "prose",
+        "run": 4,
+        "prompt_sha256": "86c32ffe0723efd02d940dbe7bf1d4c3cc569f7c73854f3d63e78bdbed7a758c",
+        "answer_sha256": "eafa03d1f07be34d8251c717b437211fcf88fd745f8307b9ce196f331f3750c0",
+        "answer": "A stock review should record lead time because it shows how long it takes for an order to arrive, which determines when replenishment must be placed. It should also record the reorder threshold so the team knows the stock level at which a new order is triggered. Together, lead time and reorder threshold make reviews timely, reduce stockouts, and help balance availability with carrying cost.",
+        "check_passed": true,
+        "prompt_tokens": 52,
+        "completion_tokens": 314,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.06344194198027253,
+        "ttfa_s": 1.7262502639787272,
+        "elapsed_s": 2.3109157939907163,
+        "decode_tok_s_est": 140.18806121707024,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 2261.675687,
+          "predicted_n": 314,
+          "predicted_per_second": 138.39296314635584,
+          "predicted_per_token_ms": 7.225800916932907,
+          "prompt_ms": 48.487319,
+          "prompt_n": 52,
+          "prompt_per_second": 1072.4453542172541,
+          "prompt_per_token_ms": 0.9324484423076923
+        }
+      },
+      {
+        "case": "inventory-105",
+        "run": 4,
+        "prompt_sha256": "6b9a3171e2a223029038808ddb6759cfac4fc0a3dbdd9da31686e1e0c265e1fe",
+        "answer_sha256": "e43d5688ffcc4662c3ec2d0737b65d58da1f83d22cd142cca5f700a8418c1be9",
+        "answer": "{\"stock\":39,\"lead_days\":4}",
+        "check_passed": true,
+        "prompt_tokens": 2159,
+        "completion_tokens": 119,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 0.4772023650002666,
+        "ttfa_s": 1.2442376529797912,
+        "elapsed_s": 1.367102216987405,
+        "decode_tok_s_est": 134.94365253642965,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 905.174577,
+          "predicted_n": 119,
+          "predicted_per_second": 130.36159322004465,
+          "predicted_per_token_ms": 7.670970991525424,
+          "prompt_ms": 460.53328500000003,
+          "prompt_n": 2159,
+          "prompt_per_second": 4688.0433408846875,
+          "prompt_per_token_ms": 0.2133086081519222
+        }
+      },
+      {
+        "case": "inventory-420",
+        "run": 4,
+        "prompt_sha256": "cc06b6a4fd5a98f801216788acf2a70906bacbe19553e4a8de506ce49828d520",
+        "answer_sha256": "d42cc0f735cacd85b40c6b1e706c8a317ff08128939bcbea29deab7a9987e23a",
+        "answer": "{\"stock\":47,\"lead_days\":11}",
+        "check_passed": true,
+        "prompt_tokens": 8459,
+        "completion_tokens": 124,
+        "cached_tokens": 0,
+        "finish_reason": "stop",
+        "ttft_s": 1.863453035010025,
+        "ttfa_s": 2.70075772999553,
+        "elapsed_s": 2.8282031569979154,
+        "decode_tok_s_est": 129.6491758329183,
+        "server_timings": {
+          "cache_n": 0,
+          "predicted_ms": 980.781334,
+          "predicted_n": 124,
+          "predicted_per_second": 125.41021707495098,
+          "predicted_per_token_ms": 7.973831983739838,
+          "prompt_ms": 1845.29737,
+          "prompt_n": 8459,
+          "prompt_per_second": 4584.0850030583415,
+          "prompt_per_token_ms": 0.21814604208535288
+        }
+      }
+    ]
+  },
+  "gpu_numerical_test_exit": 0,
+  "gpu_numerical_attention_checks": [
+    "OK   attention window ring, decode, splits 1 (49296 biased, 0 unbiased scores): bf16 0.00166, q8_1 0.00635",
+    "OK   attention window ring, decode, splits 9 (49296 biased, 0 unbiased scores): bf16 0.00163, q8_1 0.00622",
+    "OK   attention full cache, decode, splits 1 (46224 biased, 11448 unbiased scores): bf16 0.00165, q8_1 0.00615",
+    "OK   attention full cache, decode, splits 48 (46224 biased, 11448 unbiased scores): bf16 0.00168, q8_1 0.00635",
+    "OK   attention full cache, verification, splits 16 (98304 biased, 93936 unbiased scores): bf16 0.00164, q8_1 0.00627",
+    "OK   attention window ring, verification, splits 4 (73728 biased, 0 unbiased scores): bf16 0.00167, q8_1 0.00622",
+    "OK   attention full cache, decode, splits 7, sinks -30 (41400 biased, 6648 unbiased scores): bf16 0.00163, q8_1 0.00625",
+    "OK   attention full cache, decode, splits 7, sinks 12 (41400 biased, 6648 unbiased scores): bf16 0.0017, q8_1 0.00643",
+    "OK   attention window ring, chunk after 1100, splits 1 (909312 biased, 0 unbiased scores): bf16 0.00166, q8_1 0.00621",
+    "OK   attention full cache, chunk after 600, splits 1 (307944 biased, 0 unbiased scores): bf16 0.00167, q8_1 0.00627",
+    "OK   attention full cache, chunk at 0, splits 1 (49920 biased, 0 unbiased scores): bf16 0.00166, q8_1 0.00626",
+    "OK   attention full cache, 17 rows after 1103, splits 1 (417792 biased, 35904 unbiased scores): bf16 0.00166, q8_1 0.00614",
+    "OK   attention full cache, no bias, splits 1 (0 biased, 7776 unbiased scores): bf16 0.00166, q8_1 0.00633",
+    "OK   attention full cache, FP16 range fallback, splits 1 (7776 biased, 0 unbiased scores): bf16 0.00166, q8_1 0.00616",
+    "OK   attention full cache, branches, splits 1 (7416 biased, 0 unbiased scores): bf16 0.00167, q8_1 0.0062",
+    "OK   attention window ring, branches, splits 1 (7416 biased, 0 unbiased scores): bf16 0.00165, q8_1 0.00627"
+  ],
+  "sass_evidence": [
+    "        /*2da0*/                   HMMA.16816.F32 R40, R36.reuse, R12, RZ ;                           /* 0x0000000c2428723c */",
+    "HMMA instructions in SM89 QK specialization: 16"
+  ],
+  "patch_sha256": "26d61e3881321285b91b672fa8a68d0245f87996361c8ec1dfa6117a0c03d54a",
+  "benchmark_client_sha256": "40c978df656d4e65d6a6762c3db3f0ca8487d244d167dac3ab114daaa75ec359"
+}
