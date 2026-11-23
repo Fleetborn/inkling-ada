@@ -76,6 +76,19 @@ In a separate matched-weights experiment, the tensor QK patch reduced median com
 
 The [original llama.cpp baseline](docs/llama-cpp-baseline.md) measures a synthetic 128-token output cap. Its measured requests reached that cap during reasoning.
 
+### 500K llama.cpp context trial
+
+In a separate November 21, 2026 run on an RTX 4090, [Unsloth llama.cpp b12588](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8) loaded a 524,288-token context and accepted one synthetic 500,014-token retrieval prompt. The run used UD-IQ4_XS weights, a Q4_0 KV cache, a 32-token microbatch, all model layers on the GPU, and speculative decoding disabled.
+
+| Prompt tokens processed | Prefill elapsed | Cumulative prefill |
+| ---: | ---: | ---: |
+| 100,364 | 191.43 s | 524.30 tok/s |
+| 200,716 | 558.34 s | 359.49 tok/s |
+| 301,068 | 1,110.32 s | 271.16 tok/s |
+| 356,364 | 1,495.86 s | 238.23 tok/s |
+
+The request timed out at 1,500 seconds before its first answer. The table shows partial prefill measurements. Full-prompt latency, retrieval accuracy, and decode throughput remain unmeasured at this length.
+
 ## Contributing
 
 Independent benchmark runs, correctness tests, focused SM89 improvements, and build documentation are welcome. Open an [issue](https://github.com/Fleetborn/inkling-ada/issues/new) describing the hardware, model, settings, and observed result before starting a larger change. For a small fix, open a pull request with the relevant check or measurement. Preserve raw results and explain differences in weights, context, cache, and decoding settings when comparing runs.
