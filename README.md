@@ -71,7 +71,7 @@ Inkling Ada’s default engine, clean NInfer `7894c11`, completed the 150K retri
 
 ![RTX 4090 inventory retrieval from 2K through 150K input tokens. Inkling Ada finishes sooner at all six sizes. At 150K it takes 35.08 seconds versus 306.29 seconds for Strata 0.2.21. Exact times follow in the table.](assets/rtx4090-context-benchmark.png)
 
-| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Inkling Ada default (s) | Strata 0.2.21 (s) |
+| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Clean NInfer `7894c11` (s) | Strata 0.2.21 (s) |
 | --- | ---: | ---: | ---: |
 | 2,161 / 2,163 | 1.38 | 1.17 | 1.76 |
 | 8,461 / 8,463 | 2.95 | 1.98 | 6.68 |
@@ -84,7 +84,7 @@ Each cell is the completion time for one request. All 18 requests returned the e
 
 Each pair below gives **prefill / decode** in tokens per second for the same single request. Prefill uses the server's `prompt_per_second` (processed prompt tokens, `prompt_n`, divided by prompt time). Decode uses `predicted_per_second`. For these requests, NInfer counts the steps after the first output token (`predicted_n - 1`) and Strata counts all `predicted_n` output tokens, each divided by the server's decode time. At 150K, patched Ada generated 124 tokens, clean NInfer 119, and Strata 17. Short outputs make a single-request decode rate sensitive to timing.
 
-| Prompt size | Patched Ada | Inkling Ada default | Strata 0.2.21 |
+| Prompt size | Patched Ada | Clean NInfer `7894c11` | Strata 0.2.21 |
 | --- | ---: | ---: | ---: |
 | 2K | 4,521 / 130.3 | 6,438 / 142.3 | 1,358 / 111.1 |
 | 8K | 4,085 / 125.0 | 7,072 / 138.9 | 1,301 / 108.1 |
@@ -104,10 +104,18 @@ For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with
 
 ### Longer prompts
 
-Run the six-point retrieval sweep on each engine using its served model ID and the same run number. For both Ada builds use the older UD-IQ4_XS artifact, `--spec none`, `--max-context 163840` and `--kv-dtype mxfp8`. Record the effective server cap for each engine. The largest input needs about 150,060 tokens plus room for 1,024 output tokens.
+For the two NInfer runs, set `engine` to the path of the patched `18029c8` binary for the first run and the clean `7894c11` binary for the second. Set `model` to the older UD-IQ4_XS artifact verified above. Start one server at a time.
 
 ```bash
-python3 benchmark_completed.py 8080 1 --model-id inkling-2-mini --context-sweep > context-run-1.jsonl
+"$engine" "$model" --host 127.0.0.1 --port 8080 --model-id inkling-2-mini \
+  --max-context 163840 --max-concurrency 1 --expert-residency device \
+  --kv-dtype mxfp8 --spec none
+```
+
+In a second terminal, run the same six-point sweep against each server. Set `label` to `patched`, `upstream` or `strata` for separate output files. If Strata listens on another port, use its port in the client command. Record the effective server cap for each engine. The largest input needs about 150,060 tokens plus room for 1,024 output tokens.
+
+```bash
+python3 benchmark_completed.py 8080 1 --model-id inkling-2-mini --context-sweep > "$label-context-run-1.jsonl"
 ```
 
 The client warms the server with a READY request, then sends inventories of 105, 420, 780, 1,580, 3,200 and 7,500 rows. Each size has a distinct opening to limit prefix reuse. Check cached tokens when comparing cold latency. Each JSON line gives the target length, validation result and any request error. Completed requests also include the server-reported prompt length, answer, cache usage and timings when supplied. Validation requires the correct two integers, a normal stop and a reported length within 32 tokens of the estimate calibrated on the historical prompts (20 tokens per row plus 59). A failed warmup emits six failed records without sending retrieval requests. A failed retrieval still allows later points to run. Either failure makes the command exit nonzero. The socket timeout is 600 seconds.
