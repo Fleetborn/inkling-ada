@@ -67,6 +67,25 @@ Check the server log for the selected mode and record proposed and accepted draf
 
 ## RTX 4090 benchmarks
 
+### November 25, 2026 · Trappist
+
+Clean NInfer `7894c11` completed the 150K retrieval in **35.08 s**, versus **174.01 s** for our patched `18029c8` and **306.29 s** for production Strata 0.2.21. Both NInfer builds used CUDA 12.9.86 for SM89, the same UD-IQ4_XS file, GPU-resident experts, MXFP8 KV and a 163,840-token context. Strata ran its production SQ-20 weights, FP8 KV, 393,216-token cap and 64-token chunks with vision loaded. All three served one benchmark request at a time with drafting off. [Configurations and raw requests](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+
+| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Clean NInfer (s) | Strata (s) |
+| --- | ---: | ---: | ---: |
+| 2,161 / 2,163 | 1.38 | 1.17 | 1.76 |
+| 8,461 / 8,463 | 2.95 | 1.98 | 6.68 |
+| 15,661 / 15,663 | 5.60 | 3.15 | 13.07 |
+| 31,662 / 31,664 | 13.75 | 5.83 | 30.49 |
+| 64,062 / 64,064 | 40.13 | 12.31 | 79.43 |
+| 150,062 / 150,064 | 174.01 | 35.08 | 306.29 |
+
+Each cell is the completion time for one request. All 18 requests returned the expected answer and reported zero cached prompt tokens. At 150K, time to first streamed token was 172.23 s for patched Ada, 33.93 s for clean NInfer and 305.99 s for Strata. Their sampled peak GPU memory was 20,222, 20,246 and 21,796 MiB respectively, sampled every 500 ms.
+
+On the short fixtures, Strata completed arithmetic in 0.071 s and prose in 0.766 s in one request each. The corresponding plain NInfer medians across four requests were 0.419 s and 2.300 s for patched Ada, and 0.388 s and 2.257 s for clean NInfer. In a separate drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV in every mode. Across four requests per fixture and mode, median completion for verbatim copying was **1.237 s with DSpark** and **1.220 s with lookup plus DSpark**. The code edit took **0.992 s** and **0.961 s** respectively. All 96 drafting-comparison requests passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+
+### Earlier Strata 0.2.19 comparison
+
 Each benchmark ran one stream on the same RTX 4090. Ada used UD-IQ4_XS and the tensor QK patch. Strata v0.2.19 used its Inkling engine 0.1.65 and SQ-20 weights. Both used FP16 KV and a 16,384-token context for these four fixtures. Each number is the median completion time of four requests, all of which passed their fixture checks. Output lengths and prose wording can differ.
 
 | Fixture | Prompt tokens | Ada | Strata | Strata + DSpark |
