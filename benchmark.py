@@ -78,7 +78,7 @@ def read_stream(lines, start):
     }, "".join(output)
 
 
-def generate(host, port, model, prompt, limit):
+def generate(host, port, model, prompt, limit, timeout=120):
     body = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -88,7 +88,7 @@ def generate(host, port, model, prompt, limit):
         "temperature": 0,
         "max_tokens": limit,
     }).encode()
-    connection = HTTPConnection(host, port=port, timeout=120)
+    connection = HTTPConnection(host, port=port, timeout=timeout)
     start = perf_counter()
     try:
         connection.request("POST", "/v1/chat/completions", body, {

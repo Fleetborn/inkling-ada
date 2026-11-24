@@ -2,7 +2,7 @@
 
 # Inkling Ada
 
-Inkling Ada is an open-source experiment in serving Thinking Machines’ [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini) on an RTX 4090. It builds on [NInfer-all](https://github.com/iamwavecut/ninfer-all) for CUDA execution, model loading, and an OpenAI-compatible API. It pairs an SM89 tensor-core attention patch with reproducible serving benchmarks and raw results.
+Inkling Ada serves Thinking Machines’ [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini) on an RTX 4090. The default engine is [NInfer-all revision `7894c11`](https://github.com/iamwavecut/ninfer-all/tree/7894c119f638eb6cae52e4b3e8efc53ebaad216b), built from clean upstream source for SM89. The project publishes reproducible serving benchmarks and the earlier SM89 tensor-core attention experiment.
 
 [Quick start](#get-started) · [Benchmarks](#rtx-4090-benchmarks) · [Contributing](#contributing)
 
@@ -29,23 +29,78 @@ Then give your agent one request.
 
 ### Manual setup
 
-Use a supported NVIDIA driver and an Inkling-capable CUDA Linux archive from [NInfer-all releases](https://github.com/iamwavecut/ninfer-all/releases). Verify the numbered archive parts against its SHA-256 manifest and check the distribution requirements for that release. On older Linux hosts, use its Dockerfile and NVIDIA Container Toolkit as described in the [NInfer Linux release guide](https://github.com/iamwavecut/ninfer-all/blob/master/docs/release-archive-linux.md).
-
-Download the [UD-IQ4_XS NInfer artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3), then start the stock upstream server in one terminal.
+On the Linux GPU host, [prepare the default engine and model](.agents/skills/inkling-ada-deploy/references/prepare.md). The recipe builds NInfer `7894c11` for SM89 and verifies the mainline-drafter UD-IQ4_XS artifact at revision `0baae7f`. From the Inkling Ada checkout, start the prepared server and verify a completed reply.
 
 ```bash
-bash serve.sh /path/to/ninfer-serve /path/to/Inkling-2-Mini-UD-IQ4_XS-ninfer-v3.ninfer
+python3 .agents/skills/inkling-ada-deploy/scripts/start_server.py --repo "$PWD"
 ```
 
-Run the four completed-answer fixtures in a second terminal.
+Run the six completed-answer fixtures in a second terminal. Use the same run number for each build or drafting mode. The suite adds a verbatim handoff and a one-operator Python edit to the four fixtures in the benchmark table. Both new cases require the full expected answer and a normal stop.
 
 ```bash
 python3 benchmark_completed.py 8080 1
 ```
 
-The `serve.sh` launcher binds the server to loopback, keeps experts on the GPU, and uses a 16,384-token context, FP16 KV, and one active sequence. Append `8080 dspark` to the `serve.sh` command to enable speculative decoding. The commands above run the stock release. For the patched binary and matched scalar baseline, use the [pinned SM89 build instructions](docs/sm89-tensor-qk.md#apply-and-reproduce).
+The server binds to loopback, keeps experts on the GPU, and uses a 16,384-token context, FP16 KV, one active sequence and plain decoding. Add `--spec dspark` to test the drafter. The launcher accepts explicit `--engine` and `--model` paths, and `serve.sh` remains the low-level runner for experiments.
+
+### Compare engine builds and drafting modes
+
+Build A from NInfer `18029c8e0ce2555bb499e04be24d7a4e9c12a5bc` with our [SM89 tensor-QK patch](docs/sm89-tensor-qk.md#apply-and-reproduce). Build B from clean NInfer [`7894c119f638eb6cae52e4b3e8efc53ebaad216b`](https://github.com/iamwavecut/ninfer-all/tree/7894c119f638eb6cae52e4b3e8efc53ebaad216b). Target SM89 and record both binary hashes and CUDA compiler versions. Use `bash serve.sh "$engine" "$model" 8080 none` for both. Use the older UD-IQ4_XS artifact for this two-build, plain-decoding comparison. Verify its SHA-256 is `a4a1bbfbdc1150cecc9df2bc12ae87c076330bff81579e243e7875115329bb54`. [Historical benchmark artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3/tree/50d6ad60cfcd170633ead778e3a09958fc1e7887)
+
+Run `python3 benchmark_completed.py 8080 "$run" > "$label-$run.jsonl"` with a distinct label per build or mode. Restart the benchmark server at the start of each of four blocks, including between the two B blocks. Run A with IDs 1 and 2, B with 1 and 2, B with 3 and 4, then A with 3 and 4. Use the same smoke warmup and fixture order throughout, with persistent prefix caching off. Pair by run and prompt hash. Check all six normal stops and fixture validations, then compare per-fixture median time to first visible answer and completion. Report answer hashes, output and cached token counts, and any differences in cache hits or output lengths alongside latency.
+
+For a separate, build-B-only drafting comparison, switch to the newer UD-IQ4_XS artifact containing the **mainline DSpark drafter**. Verify SHA-256 `d96986947048ed3ac643da0ed6c389e8ab821f66d10e2abf1f4347224b4180db` and use that file for every mode, including plain decoding. Build B can use the older pinned artifact for plain decoding. DSpark requires the newer layout. [Matched UD-IQ4_XS artifact](https://huggingface.co/WaveCut/Inkling-2-Mini-UD-IQ4_XS-NInfer-v3/tree/0baae7fdb07506ec285bd334f2671a889aa890c0) · [Artifact requirements](https://github.com/iamwavecut/ninfer-all/blob/7894c119f638eb6cae52e4b3e8efc53ebaad216b/docs/inkling2.md#L189-L202)
+
+```bash
+common=(--host 127.0.0.1 --port 8080 --model-id inkling-2-mini --max-context 16384
+        --max-concurrency 1 --expert-residency device --kv-dtype fp16)
+# Start one server at a time in the order shown. Run IDs 1 through 4 before switching modes.
+"$engine_b" "$model_mainline" "${common[@]}" --spec none
+"$engine_b" "$model_mainline" "${common[@]}" --spec none --lookup-ngram 3 --draft-tokens 3
+"$engine_b" "$model_mainline" "${common[@]}" --spec dspark --draft-tokens 3
+"$engine_b" "$model_mainline" "${common[@]}" --spec dspark --draft-tokens 3 --lookup-ngram 3
+```
+
+Check the server log for the selected mode and record proposed and accepted draft counts where available. The lookup-only run proposes continuations already present in the sequence. DSpark uses the artifact's drafter. In the combined mode, the scheduler tries lookup first and can call DSpark when lookup misses. [Inkling draft selection](https://github.com/iamwavecut/ninfer-all/blob/7894c119f638eb6cae52e4b3e8efc53ebaad216b/src/runtime/engine/inkling2_core.cpp#L2439-L2466)
 
 ## RTX 4090 benchmarks
+
+### November 25, 2026 · Trappist
+
+Clean NInfer `7894c11` completed the 150K retrieval in **35.08 s**, versus **174.01 s** for our patched `18029c8` and **306.29 s** for production Strata 0.2.21. Both NInfer builds used CUDA 12.9.86 for SM89, the same UD-IQ4_XS file, GPU-resident experts, MXFP8 KV and a 163,840-token context. Strata ran its production SQ-20 weights, FP8 KV, 393,216-token cap and 64-token chunks with vision loaded. All three served one benchmark request at a time with drafting off. [Configurations and raw requests](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+
+| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Clean NInfer (s) | Strata (s) |
+| --- | ---: | ---: | ---: |
+| 2,161 / 2,163 | 1.38 | 1.17 | 1.76 |
+| 8,461 / 8,463 | 2.95 | 1.98 | 6.68 |
+| 15,661 / 15,663 | 5.60 | 3.15 | 13.07 |
+| 31,662 / 31,664 | 13.75 | 5.83 | 30.49 |
+| 64,062 / 64,064 | 40.13 | 12.31 | 79.43 |
+| 150,062 / 150,064 | 174.01 | 35.08 | 306.29 |
+
+Each cell is the completion time for one request. All 18 requests returned the expected answer and reported zero cached prompt tokens. At 150K, time to first streamed token was 172.23 s for patched Ada, 33.93 s for clean NInfer and 305.99 s for Strata. Their sampled peak GPU memory was 20,222, 20,246 and 21,796 MiB respectively, sampled every 500 ms.
+
+Each pair below gives **prefill / decode** in tokens per second for the same single request. Prefill uses the server's `prompt_per_second` (processed prompt tokens, `prompt_n`, divided by prompt time). Decode uses `predicted_per_second`. For these requests, NInfer counts the steps after the first output token (`predicted_n - 1`) and Strata counts all `predicted_n` output tokens, each divided by the server's decode time. At 150K, patched Ada generated 124 tokens, clean NInfer 119, and Strata 17. Short outputs make a single-request decode rate sensitive to timing.
+
+| Prompt size | Patched Ada | Clean NInfer | Strata |
+| --- | ---: | ---: | ---: |
+| 2K | 4,521 / 130.3 | 6,438 / 142.3 | 1,358 / 111.1 |
+| 8K | 4,085 / 125.0 | 7,072 / 138.9 | 1,301 / 108.1 |
+| 16K | 3,399 / 119.5 | 6,885 / 134.8 | 1,216 / 105.2 |
+| 32K | 2,503 / 109.8 | 6,484 / 127.2 | 1,045 / 99.4 |
+| 64K | 1,649 / 94.0 | 5,756 / 118.5 | 809 / 89.1 |
+| 150K | 872 / 68.0 | 4,429 / 100.9 | 491 / 56.4 |
+
+On the short fixtures, Strata completed arithmetic in 0.071 s and prose in 0.766 s in one request each. The corresponding plain NInfer medians across four requests were 0.419 s and 2.300 s for patched Ada, and 0.388 s and 2.257 s for clean NInfer.
+
+For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV throughout. The four modes ran in the fixed order shown from left to right, with four runs per mode. Each pair gives the median completion time in seconds and median server-reported decode rate in tokens per second. All 96 requests across the six fixtures passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+
+| Fixture | Plain | Lookup only | DSpark | Lookup + DSpark |
+| --- | ---: | ---: | ---: | ---: |
+| Verbatim copy | 2.008 / 148.0 | 1.541 / 188.1 | 1.237 / 251.2 | 1.220 / 247.8 |
+| Code edit | 1.674 / 147.8 | 1.188 / 211.7 | 0.992 / 256.8 | 0.961 / 265.7 |
+
+### Earlier Strata 0.2.19 comparison
 
 Each benchmark ran one stream on the same RTX 4090. Ada used UD-IQ4_XS and the tensor QK patch. Strata v0.2.19 used its Inkling engine 0.1.65 and SQ-20 weights. Both used FP16 KV and a 16,384-token context for these four fixtures. Each number is the median completion time of four requests, all of which passed their fixture checks. Output lengths and prose wording can differ.
 
@@ -59,6 +114,14 @@ Each benchmark ran one stream on the same RTX 4090. Ada used UD-IQ4_XS and the t
 Strata with DSpark led on arithmetic, prose, and the 2,159-token lookup. Ada led at 8,459 tokens. The stacks use different weight packs and can generate different numbers of tokens. [Completed-answer data](results/rtx4090-strata-completed.json)
 
 ### Longer prompts
+
+Run the six-point retrieval sweep on each engine using its served model ID and the same run number. For both Ada builds use `--max-context 163840` in the direct server command above. Record the effective server cap for each engine. The largest input needs about 150,060 tokens plus room for 1,024 output tokens.
+
+```bash
+python3 benchmark_completed.py 8080 1 --model-id inkling-2-mini --context-sweep > context-run-1.jsonl
+```
+
+The client warms the server with a READY request, then sends inventories of 105, 420, 780, 1,580, 3,200 and 7,500 rows. These prompts differ from the historical table below because each size has a distinct opening to limit prefix reuse. Check cached tokens when comparing cold latency. Each JSON line gives the target length, validation result and any request error. Completed requests also include the server-reported prompt length, answer, cache usage and timings when supplied. Validation requires the correct two integers, a normal stop and a reported length within 32 tokens of the estimate calibrated on the historical prompts (20 tokens per row plus 59). A failed warmup emits six failed records without sending retrieval requests. A failed retrieval still allows later points to run. Either failure makes the command exit nonzero. The socket timeout is 600 seconds.
 
 ![Paired RTX 4090 latency bars. Ada and Strata complete the 15.7K prompt in 4.71 and 15.91 seconds, and the 64K prompt in 26.02 and 86.23 seconds.](assets/rtx4090-context-benchmark.png)
 
