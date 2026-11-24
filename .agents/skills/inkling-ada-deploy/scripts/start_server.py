@@ -16,6 +16,8 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 HOST = "127.0.0.1"
 MODEL_ID = "inkling-2-mini"
+ENGINE_REVISION = "7894c119f638eb6cae52e4b3e8efc53ebaad216b"
+MODEL_REVISION = "0baae7fdb07506ec285bd334f2671a889aa890c0"
 HTTP = build_opener(ProxyHandler({}))
 
 
@@ -167,10 +169,14 @@ def interrupted(_signal_number, _frame):
 
 
 def main():
+    cache = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "inkling-ada"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True, type=Path, help="Inkling Ada checkout containing serve.sh")
-    parser.add_argument("--engine", required=True, type=Path, help="trusted ninfer-serve executable")
-    parser.add_argument("--model", required=True, type=Path, help="prepared .ninfer model artifact")
+    parser.add_argument("--engine", type=Path, default=cache / "engines" / ENGINE_REVISION / "build/apps/ninfer-serve",
+                        help="trusted ninfer-serve executable (default: pinned SM89 build in user cache)")
+    parser.add_argument("--model", type=Path,
+                        default=cache / "models" / MODEL_REVISION / "Inkling-2-Mini-UD-IQ4_XS-ninfer-v3.ninfer",
+                        help="prepared .ninfer model artifact (default: pinned UD-IQ4_XS file in user cache)")
     parser.add_argument("--port", type=int, default=8080)
     state_home = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
     parser.add_argument("--state-dir", type=Path, default=state_home / "inkling-ada")
