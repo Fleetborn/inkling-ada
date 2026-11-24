@@ -35,7 +35,7 @@ On the Linux GPU host, [prepare the default engine and model](.agents/skills/ink
 python3 .agents/skills/inkling-ada-deploy/scripts/start_server.py --repo "$PWD"
 ```
 
-Run the six completed-answer fixtures in a second terminal. Use the same run number for each build or drafting mode. The suite adds a verbatim handoff and a one-operator Python edit to the four fixtures in the benchmark table. Both new cases require the full expected answer and a normal stop.
+Run the six completed-answer fixtures in a second terminal. Use the same run number for each build or drafting mode. The suite covers arithmetic, prose, two inventory lookups, a verbatim handoff and a one-operator Python edit. The handoff and code edit require the full expected answer and a normal stop.
 
 ```bash
 python3 benchmark_completed.py 8080 1
@@ -67,9 +67,11 @@ Check the server log for the selected mode and record proposed and accepted draf
 
 ### November 25, 2026 · Trappist
 
-Clean NInfer `7894c11` completed the 150K retrieval in **35.08 s**, versus **174.01 s** for our patched `18029c8` and **306.29 s** for production Strata 0.2.21. Both NInfer builds used CUDA 12.9.86 for SM89, the same UD-IQ4_XS file, GPU-resident experts, MXFP8 KV and a 163,840-token context. Strata ran its production SQ-20 weights, FP8 KV, 393,216-token cap and 64-token chunks with vision loaded. All three served one benchmark request at a time with drafting off. [Configurations and raw requests](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+Inkling Ada’s default engine, clean NInfer `7894c11`, completed the 150K retrieval in **35.08 s**, versus **174.01 s** for our patched `18029c8` and **306.29 s** for production Strata 0.2.21. Both NInfer builds used CUDA 12.9.86 for SM89, the same older UD-IQ4_XS artifact, GPU-resident experts, MXFP8 KV and a 163,840-token context. Strata ran its production SQ-20 weights, FP8 KV, 393,216-token cap and 64-token chunks with vision loaded. All three served one benchmark request at a time with drafting off. [Configurations and raw requests](results/rtx4090-strata-0221-ninfer-context-drafting.json)
 
-| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Clean NInfer (s) | Strata (s) |
+![RTX 4090 inventory retrieval from 2K through 150K input tokens. Inkling Ada finishes sooner at all six sizes. At 150K it takes 35.08 seconds versus 306.29 seconds for Strata 0.2.21. Exact times follow in the table.](assets/rtx4090-context-benchmark.png)
+
+| Prompt tokens (NInfer / Strata) | Patched Ada (s) | Inkling Ada default (s) | Strata 0.2.21 (s) |
 | --- | ---: | ---: | ---: |
 | 2,161 / 2,163 | 1.38 | 1.17 | 1.76 |
 | 8,461 / 8,463 | 2.95 | 1.98 | 6.68 |
@@ -82,7 +84,7 @@ Each cell is the completion time for one request. All 18 requests returned the e
 
 Each pair below gives **prefill / decode** in tokens per second for the same single request. Prefill uses the server's `prompt_per_second` (processed prompt tokens, `prompt_n`, divided by prompt time). Decode uses `predicted_per_second`. For these requests, NInfer counts the steps after the first output token (`predicted_n - 1`) and Strata counts all `predicted_n` output tokens, each divided by the server's decode time. At 150K, patched Ada generated 124 tokens, clean NInfer 119, and Strata 17. Short outputs make a single-request decode rate sensitive to timing.
 
-| Prompt size | Patched Ada | Clean NInfer | Strata |
+| Prompt size | Patched Ada | Inkling Ada default | Strata 0.2.21 |
 | --- | ---: | ---: | ---: |
 | 2K | 4,521 / 130.3 | 6,438 / 142.3 | 1,358 / 111.1 |
 | 8K | 4,085 / 125.0 | 7,072 / 138.9 | 1,301 / 108.1 |
@@ -100,40 +102,15 @@ For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with
 | Verbatim copy | 2.008 / 148.0 | 1.541 / 188.1 | 1.237 / 251.2 | 1.220 / 247.8 |
 | Code edit | 1.674 / 147.8 | 1.188 / 211.7 | 0.992 / 256.8 | 0.961 / 265.7 |
 
-### Earlier Strata 0.2.19 comparison
-
-Each benchmark ran one stream on the same RTX 4090. Ada used UD-IQ4_XS and the tensor QK patch. Strata v0.2.19 used its Inkling engine 0.1.65 and SQ-20 weights. Both used FP16 KV and a 16,384-token context for these four fixtures. Each number is the median completion time of four requests, all of which passed their fixture checks. Output lengths and prose wording can differ.
-
-| Fixture | Prompt tokens | Ada | Strata | Strata + DSpark |
-| --- | ---: | ---: | ---: | ---: |
-| Arithmetic | 30 | 0.419 s | 0.595 s | 0.332 s |
-| Prose | 52 | 2.298 s | 3.376 s | 2.072 s |
-| Inventory retrieval | 2,159 | 1.381 s | 1.981 s | 1.197 s |
-| Inventory retrieval | 8,459 | 2.791 s | 3.880 s | 3.142 s |
-
-Strata with DSpark led on arithmetic, prose, and the 2,159-token lookup. Ada led at 8,459 tokens. The stacks use different weight packs and can generate different numbers of tokens. [Completed-answer data](results/rtx4090-strata-completed.json)
-
 ### Longer prompts
 
-Run the six-point retrieval sweep on each engine using its served model ID and the same run number. For both Ada builds use `--max-context 163840` in the direct server command above. Record the effective server cap for each engine. The largest input needs about 150,060 tokens plus room for 1,024 output tokens.
+Run the six-point retrieval sweep on each engine using its served model ID and the same run number. For both Ada builds use the older UD-IQ4_XS artifact, `--spec none`, `--max-context 163840` and `--kv-dtype mxfp8`. Record the effective server cap for each engine. The largest input needs about 150,060 tokens plus room for 1,024 output tokens.
 
 ```bash
 python3 benchmark_completed.py 8080 1 --model-id inkling-2-mini --context-sweep > context-run-1.jsonl
 ```
 
-The client warms the server with a READY request, then sends inventories of 105, 420, 780, 1,580, 3,200 and 7,500 rows. These prompts differ from the historical table below because each size has a distinct opening to limit prefix reuse. Check cached tokens when comparing cold latency. Each JSON line gives the target length, validation result and any request error. Completed requests also include the server-reported prompt length, answer, cache usage and timings when supplied. Validation requires the correct two integers, a normal stop and a reported length within 32 tokens of the estimate calibrated on the historical prompts (20 tokens per row plus 59). A failed warmup emits six failed records without sending retrieval requests. A failed retrieval still allows later points to run. Either failure makes the command exit nonzero. The socket timeout is 600 seconds.
-
-![Paired RTX 4090 latency bars. Ada and Strata complete the 15.7K prompt in 4.71 and 15.91 seconds, and the 64K prompt in 26.02 and 86.23 seconds.](assets/rtx4090-context-benchmark.png)
-
-The longer context sweep ran one correct completed retrieval request per point. Ada used UD-IQ4_XS, FP16 KV, and a configured 65,536-token context. Strata used SQ-20, FP8 KV, 64-token chunks, and no drafting after DSpark exhausted VRAM in the large configuration. Its CUDA configuration was automatically capped at 286,912 tokens.
-
-| Prompt tokens | Ada completion | Strata completion |
-| ---: | ---: | ---: |
-| 15,659 | 4.706 s | 15.911 s |
-| 31,659 | 10.218 s | 35.011 s |
-| 64,059 | 26.024 s | 86.232 s |
-
-At a verified 307,459-token prompt, Ada allocated a 327,680-token MXFP8 KV cache and prefilled about 141,000 tokens before the 152-second cutoff. The recorded first attempt exited after 59 seconds because of a harness error. Strata was limited by its 286,912-token KV cap. The 307K experiment recorded partial prefill and a capacity limit. [Context sweep data](results/rtx4090-context-sweep.json)
+The client warms the server with a READY request, then sends inventories of 105, 420, 780, 1,580, 3,200 and 7,500 rows. Each size has a distinct opening to limit prefix reuse. Check cached tokens when comparing cold latency. Each JSON line gives the target length, validation result and any request error. Completed requests also include the server-reported prompt length, answer, cache usage and timings when supplied. Validation requires the correct two integers, a normal stop and a reported length within 32 tokens of the estimate calibrated on the historical prompts (20 tokens per row plus 59). A failed warmup emits six failed records without sending retrieval requests. A failed retrieval still allows later points to run. Either failure makes the command exit nonzero. The socket timeout is 600 seconds.
 
 In a separate matched-weights experiment, the tensor QK patch reduced median completion time from 3.010 to 2.796 seconds on the 8,459-token fixture. [Experiment and numerical checks](docs/sm89-tensor-qk.md)
 
