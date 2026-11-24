@@ -45,6 +45,8 @@
     }
   },
   "client": {
+    "inkling_ada_revision": "4ebb64d2e6ff161e08fb1cdab281ceab234fd4cf",
+    "sha256_scope": "Client files as executed, with CRLF line endings",
     "benchmark_py_sha256": "977aee0f3ecfef11652cf716ccf0908fb24e31ed68cb981b6c006490f80fca85",
     "benchmark_completed_py_sha256": "883fa0cde09e4bab40871a08f2a96050952675c3b1c7b19d7f0b78fddfdf614b",
     "temperature": 0,

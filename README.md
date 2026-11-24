@@ -56,7 +56,7 @@ For a separate, build-B-only drafting comparison, switch to the newer UD-IQ4_XS 
 ```bash
 common=(--host 127.0.0.1 --port 8080 --model-id inkling-2-mini --max-context 16384
         --max-concurrency 1 --expert-residency device --kv-dtype fp16)
-# Start one server at a time. Repeat the paired comparison against plain for each mode.
+# Start one server at a time in the order shown. Run IDs 1 through 4 before switching modes.
 "$engine_b" "$model_mainline" "${common[@]}" --spec none
 "$engine_b" "$model_mainline" "${common[@]}" --spec none --lookup-ngram 3 --draft-tokens 3
 "$engine_b" "$model_mainline" "${common[@]}" --spec dspark --draft-tokens 3
@@ -82,7 +82,14 @@ Clean NInfer `7894c11` completed the 150K retrieval in **35.08 s**, versus **174
 
 Each cell is the completion time for one request. All 18 requests returned the expected answer and reported zero cached prompt tokens. At 150K, time to first streamed token was 172.23 s for patched Ada, 33.93 s for clean NInfer and 305.99 s for Strata. Their sampled peak GPU memory was 20,222, 20,246 and 21,796 MiB respectively, sampled every 500 ms.
 
-On the short fixtures, Strata completed arithmetic in 0.071 s and prose in 0.766 s in one request each. The corresponding plain NInfer medians across four requests were 0.419 s and 2.300 s for patched Ada, and 0.388 s and 2.257 s for clean NInfer. In a separate drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV in every mode. Across four requests per fixture and mode, median completion for verbatim copying was **1.237 s with DSpark** and **1.220 s with lookup plus DSpark**. The code edit took **0.992 s** and **0.961 s** respectively. All 96 drafting-comparison requests passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+On the short fixtures, Strata completed arithmetic in 0.071 s and prose in 0.766 s in one request each. The corresponding plain NInfer medians across four requests were 0.419 s and 2.300 s for patched Ada, and 0.388 s and 2.257 s for clean NInfer.
+
+For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV throughout. The four modes ran in the fixed order shown from left to right, with four runs per mode. The table gives median completion time in seconds. All 96 requests across the six fixtures passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+
+| Fixture | Plain | Lookup only | DSpark | Lookup + DSpark |
+| --- | ---: | ---: | ---: | ---: |
+| Verbatim copy | 2.008 | 1.541 | 1.237 | 1.220 |
+| Code edit | 1.674 | 1.188 | 0.992 | 0.961 |
 
 ### Earlier Strata 0.2.19 comparison
 
