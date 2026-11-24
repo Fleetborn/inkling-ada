@@ -80,14 +80,25 @@ Clean NInfer `7894c11` completed the 150K retrieval in **35.08 s**, versus **174
 
 Each cell is the completion time for one request. All 18 requests returned the expected answer and reported zero cached prompt tokens. At 150K, time to first streamed token was 172.23 s for patched Ada, 33.93 s for clean NInfer and 305.99 s for Strata. Their sampled peak GPU memory was 20,222, 20,246 and 21,796 MiB respectively, sampled every 500 ms.
 
+Each pair below gives **prefill / decode** in tokens per second for the same single request. Prefill uses the server's `prompt_per_second` (processed prompt tokens, `prompt_n`, divided by prompt time). Decode uses `predicted_per_second`. For these requests, NInfer counts the steps after the first output token (`predicted_n - 1`) and Strata counts all `predicted_n` output tokens, each divided by the server's decode time. At 150K, patched Ada generated 124 tokens, clean NInfer 119, and Strata 17. Short outputs make a single-request decode rate sensitive to timing.
+
+| Prompt size | Patched Ada | Clean NInfer | Strata |
+| --- | ---: | ---: | ---: |
+| 2K | 4,521 / 130.3 | 6,438 / 142.3 | 1,358 / 111.1 |
+| 8K | 4,085 / 125.0 | 7,072 / 138.9 | 1,301 / 108.1 |
+| 16K | 3,399 / 119.5 | 6,885 / 134.8 | 1,216 / 105.2 |
+| 32K | 2,503 / 109.8 | 6,484 / 127.2 | 1,045 / 99.4 |
+| 64K | 1,649 / 94.0 | 5,756 / 118.5 | 809 / 89.1 |
+| 150K | 872 / 68.0 | 4,429 / 100.9 | 491 / 56.4 |
+
 On the short fixtures, Strata completed arithmetic in 0.071 s and prose in 0.766 s in one request each. The corresponding plain NInfer medians across four requests were 0.419 s and 2.300 s for patched Ada, and 0.388 s and 2.257 s for clean NInfer.
 
-For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV throughout. The four modes ran in the fixed order shown from left to right, with four runs per mode. The table gives median completion time in seconds. All 96 requests across the six fixtures passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
+For the drafting comparison, clean NInfer used the newer UD-IQ4_XS artifact with the mainline drafter, 16K context and FP16 KV throughout. The four modes ran in the fixed order shown from left to right, with four runs per mode. Each pair gives the median completion time in seconds and median server-reported decode rate in tokens per second. All 96 requests across the six fixtures passed. [Per-request answers and timings](results/rtx4090-strata-0221-ninfer-context-drafting.json)
 
 | Fixture | Plain | Lookup only | DSpark | Lookup + DSpark |
 | --- | ---: | ---: | ---: | ---: |
-| Verbatim copy | 2.008 | 1.541 | 1.237 | 1.220 |
-| Code edit | 1.674 | 1.188 | 0.992 | 0.961 |
+| Verbatim copy | 2.008 / 148.0 | 1.541 / 188.1 | 1.237 / 251.2 | 1.220 / 247.8 |
+| Code edit | 1.674 / 147.8 | 1.188 / 211.7 | 0.992 / 256.8 | 0.961 / 265.7 |
 
 ### Earlier Strata 0.2.19 comparison
 
